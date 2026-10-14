@@ -7,14 +7,8 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
+  // Tailwind se procesa con PostCSS (postcss.config.mjs). El cargador @tailwindcss/turbopack
+  // guardaba en caché la primera versión de globals.css y no veía los cambios posteriores.
 };
 
 export default nextConfig;

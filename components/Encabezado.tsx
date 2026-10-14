@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BotonTema from "./BotonTema";
 
 const enlaces = [
   { href: "#servicios", texto: "Servicios" },
@@ -28,12 +29,15 @@ export default function Encabezado() {
           </ul>
         </nav>
 
-        <Link
-          href="#contacto"
-          className="ml-auto rounded-lg bg-naranja px-4 py-2 text-sm font-semibold text-white hover:bg-naranja-hover md:ml-0"
-        >
-          Cuéntanos tu idea
-        </Link>
+        <div className="ml-auto flex items-center gap-3 md:ml-0">
+          <BotonTema />
+          <Link
+            href="#contacto"
+            className="rounded-lg bg-naranja px-4 py-2 text-sm font-semibold text-white hover:bg-naranja-hover"
+          >
+            Cuéntanos tu idea
+          </Link>
+        </div>
       </div>
     </header>
   );

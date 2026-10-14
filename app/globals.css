@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* "dark:" se activa con el tema elegido (data-theme), no solo con el del computador */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* Colores de la guía de marca LymunArt */
 @theme {
   --color-naranja: #D9661A;
@@ -18,7 +21,8 @@
   --color-dev-texto: #E9DFE2;
 }
 
-/* Colores que cambian según el modo claro u oscuro del computador del visitante */
+/* Colores que cambian entre modo claro y oscuro.
+   El tema lo elige el botón de sol/luna; si el visitante no ha elegido, se sigue el del computador. */
 :root {
   --fondo: #FAF8F5;
   --superficie: #FFFFFF;
@@ -28,15 +32,13 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --fondo: #16141F;
-    --superficie: #221F2E;
-    --tinta: #F3F0F7;
-    --tinta-suave: #B9B3C6;
-    --linea: #34304A;
-    color-scheme: dark;
-  }
+:root[data-theme="dark"] {
+  --fondo: #16141F;
+  --superficie: #221F2E;
+  --tinta: #F3F0F7;
+  --tinta-suave: #B9B3C6;
+  --linea: #34304A;
+  color-scheme: dark;
 }
 
 @theme inline {

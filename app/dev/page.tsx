@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+import type { CSSProperties } from "react";
+import Revelar from "@/components/Revelar";
 
 export const metadata: Metadata = {
   title: "LymunArt Dev",
@@ -8,91 +9,127 @@ export const metadata: Metadata = {
     "Desarrollo a la medida para clientes especiales de LymunArt, con atención directa y prioridad en cada entrega.",
 };
 
-// LymunArt Dev: solo negro, vinotinto y blanco. Títulos en Cormorant, texto en Inter ligera, trato de "usted".
+// LymunArt Dev: solo negro, vinotinto y blanco. Títulos en Sora, texto en Inter, trato de "tú".
 const beneficios = [
   {
     titulo: "Atención directa",
-    texto: "Trabaja directamente con el fundador de LymunArt, sin intermediarios.",
+    texto: "Trabajas directamente con el fundador de LymunArt, sin intermediarios.",
   },
   {
     titulo: "Prioridad en cada entrega",
-    texto: "Sus proyectos pasan primero en la agenda de desarrollo.",
+    texto: "Tus proyectos pasan primero en la agenda de desarrollo.",
   },
   {
     titulo: "Sistemas a la medida",
-    texto: "Plataformas, aplicaciones y automatizaciones diseñadas alrededor de su empresa.",
+    texto: "Plataformas, aplicaciones y automatizaciones diseñadas alrededor de tu empresa.",
   },
   {
     titulo: "Acompañamiento continuo",
-    texto: "Después de la entrega seguimos a su lado para ajustar y mejorar lo que necesite.",
+    texto: "Después de la entrega seguimos a tu lado para ajustar y mejorar lo que necesites.",
   },
 ];
 
+// El camino hacia Dev: con el segundo servicio te avisamos, con el tercero se activa.
+const camino = [
+  { titulo: "Servicio 1", nota: "Empiezas con nosotros" },
+  { titulo: "Servicio 2", nota: "Te avisamos que estás a uno" },
+  { titulo: "Servicio 3", nota: "Se activa tu acceso a Dev" },
+];
+
+const retraso = (ms: number) => ({ "--retraso": `${ms}ms` }) as CSSProperties;
+const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
+
 export default function Dev() {
   return (
-    <div className="flex flex-1 flex-col bg-black text-white">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-        <Link href="/" className="font-titulo text-lg font-bold">
-          LymunArt
-        </Link>
-        <Link href="/" className="text-sm text-dev-texto hover:text-white">
-          Volver a LymunArt
-        </Link>
-      </header>
+    <>
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 md:grid-cols-[1fr_auto] md:pt-24 md:pb-28">
+        <div className="flex flex-col gap-6">
+          <h1 className="entrada font-titulo text-[clamp(2.75rem,7vw,4.75rem)] leading-[1.02] font-bold tracking-[-0.035em]">
+            Desarrollo a la medida
+          </h1>
+          <p style={retraso(140)} className="entrada max-w-xl text-lg leading-relaxed text-dev-texto sm:text-xl">
+            LymunArt Dev es el área exclusiva para quienes ya han confiado en
+            nosotros. Tu aplicación será tuya: el código, los datos y el dominio.
+          </p>
+        </div>
+        <Image
+          src="/logo/lymunart-dev-logo.svg"
+          alt="Logo de LymunArt Dev"
+          width={590}
+          height={695}
+          loading="eager"
+          style={retraso(120)}
+          className="entrada mx-auto w-40 sm:w-52"
+        />
+      </section>
 
-      <main className="flex-1">
-        <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1fr_auto] md:py-24">
-          <div className="flex flex-col gap-6">
-            <p className="font-mono text-xs uppercase tracking-widest text-dev-texto">
-              Para clientes especiales
-            </p>
-            <h1 className="font-dev text-6xl font-semibold leading-none sm:text-7xl">
-              Desarrollo a la medida
-            </h1>
-            <p className="max-w-xl text-lg font-light text-dev-texto">
-              LymunArt Dev es el área exclusiva para quienes ya han confiado en
-              nosotros. Su aplicación será suya: el código, los datos y el
-              dominio.
-            </p>
-          </div>
-          <Image
-            src="/logo/lymunart-dev-logo.svg"
-            alt="Logo de LymunArt Dev"
-            width={590}
-            height={695}
-            priority
-            className="mx-auto w-40 sm:w-52"
-          />
-        </section>
-
-        <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <h2 className="mb-8 font-dev text-4xl font-semibold">Qué incluye</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+      <section aria-labelledby="titulo-incluye" className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 md:pb-28">
+        <Revelar>
+          <h2 id="titulo-incluye" className="mb-10 font-titulo text-3xl leading-tight font-semibold tracking-[-0.025em] sm:text-[2.75rem]">
+            Qué incluye
+          </h2>
+        </Revelar>
+        <Revelar>
+          <ul className="grid gap-4 sm:grid-cols-2">
             {beneficios.map((beneficio) => (
-              <article key={beneficio.titulo} className="flex flex-col gap-2 rounded-2xl bg-vino p-6">
-                <h3 className="font-dev text-3xl font-semibold">{beneficio.titulo}</h3>
-                <p className="font-light text-dev-texto">{beneficio.texto}</p>
-              </article>
+              <li key={beneficio.titulo} className="flex flex-col gap-2 rounded-2xl bg-vino p-7">
+                <h3 className="font-titulo text-xl font-semibold tracking-[-0.015em]">{beneficio.titulo}</h3>
+                <p className="text-dev-texto">{beneficio.texto}</p>
+              </li>
             ))}
-          </div>
-        </section>
+          </ul>
+        </Revelar>
+      </section>
 
-        <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-          <div className="flex flex-col gap-4 rounded-2xl border border-vino-borde p-8 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col gap-2">
-              <h2 className="font-dev text-4xl font-semibold">Cómo acceder</h2>
-              <p className="max-w-xl font-light text-dev-texto">
-                LymunArt Dev se activa automáticamente cuando completa su tercer
-                servicio con nosotros. Muy pronto podrá ingresar con su cuenta
-                para ver sus proyectos.
-              </p>
-            </div>
-            <span className="w-fit rounded-full border border-white/40 px-4 py-2 text-sm">
+      <section aria-labelledby="titulo-acceder" className="border-t border-white/10">
+        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 md:gap-16 md:py-28">
+          <Revelar className="flex flex-col gap-5">
+            <h2 id="titulo-acceder" className="font-titulo text-3xl leading-tight font-semibold tracking-[-0.025em] sm:text-[2.75rem]">
+              Cómo acceder
+            </h2>
+            <p className="max-w-xl text-lg text-dev-texto">
+              LymunArt Dev se activa automáticamente cuando completas tu tercer
+              servicio con nosotros. Con el segundo te avisamos que estás a uno.
+              Muy pronto podrás ingresar con tu cuenta para ver tus proyectos.
+            </p>
+            <span className="mt-1 w-fit rounded-full border border-white/40 px-4 py-2 text-sm">
               Acceso de clientes · próximamente
             </span>
-          </div>
-        </section>
-      </main>
-    </div>
+          </Revelar>
+
+          <Revelar className="self-center rounded-2xl bg-vino p-7 sm:p-9">
+            <p className="mb-8 text-sm font-semibold text-dev-texto">Tu camino hacia LymunArt Dev</p>
+            <ol className="grid grid-cols-3">
+              {camino.map((paso, i) => {
+                const ultimo = i === camino.length - 1;
+                return (
+                  <li key={paso.titulo} className="relative flex flex-col items-center gap-3 text-center">
+                    {!ultimo && (
+                      <span
+                        aria-hidden="true"
+                        style={d(250 + i * 300)}
+                        className="dev-linea absolute top-7 left-[calc(50%+2.25rem)] h-0.5 w-[calc(100%-4.5rem)] rounded-full bg-white/40"
+                      />
+                    )}
+                    <span
+                      style={d(100 + i * 300)}
+                      className={`pasos-nodo flex size-14 items-center justify-center rounded-full font-titulo text-xl font-bold ${
+                        ultimo ? "bg-white text-vino" : "border-2 border-white/40"
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="flex flex-col gap-0.5">
+                      <span className="text-sm font-semibold">{paso.titulo}</span>
+                      <span className="text-xs text-dev-texto">{paso.nota}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          </Revelar>
+        </div>
+      </section>
+    </>
   );
 }

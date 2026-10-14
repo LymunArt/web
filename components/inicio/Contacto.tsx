@@ -1,41 +1,30 @@
-// Fase 1: los canales todavía no están activos.
-// El asistente de IA llega en la fase 3 y WhatsApp cuando haya número de empresa.
-const canales = [
-  {
-    titulo: "Asistente LymunArt",
-    texto: "Cuéntale tu idea a cualquier hora. Te hará las preguntas necesarias y nos pasará tu solicitud.",
-    estilo: "bg-lila text-lila-tinta",
-  },
-  {
-    titulo: "WhatsApp",
-    texto: "Escríbenos directamente para hablar de tu proyecto con una persona.",
-    estilo: "bg-cielo text-cielo-tinta",
-  },
-];
+import Link from "next/link";
+import Revelar from "@/components/Revelar";
+import Canales from "@/components/contacto/Canales";
 
+// Cierre de la landing: una franja de tinta que ancla el final de la página.
 export default function Contacto() {
   return (
-    <section id="contacto" className="scroll-mt-20 border-t border-linea">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="mb-10 flex max-w-2xl flex-col gap-3">
-          <h2 className="font-titulo text-3xl font-semibold sm:text-4xl">Hablemos de tu proyecto</h2>
-          <p className="text-lg text-tinta-suave">
+    <section aria-labelledby="titulo-contacto" className="bg-tinta-fija text-white dark:bg-superficie">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-[1fr_1.1fr] md:gap-16 md:py-28">
+        <Revelar className="flex flex-col gap-5">
+          <h2 id="titulo-contacto" className="font-titulo text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.05] font-bold tracking-[-0.03em]">
+            Hablemos de tu proyecto
+          </h2>
+          <p className="max-w-md text-lg text-white/75">
             Estamos preparando nuestros canales de atención. Muy pronto podrás
             escribirnos por aquí.
           </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          {canales.map((canal) => (
-            <article key={canal.titulo} className={`flex flex-col gap-3 rounded-2xl p-6 ${canal.estilo}`}>
-              <span className="w-fit rounded-full bg-white/70 px-3 py-1 text-xs font-semibold">
-                Próximamente
-              </span>
-              <h3 className="font-titulo text-xl font-semibold">{canal.titulo}</h3>
-              <p>{canal.texto}</p>
-            </article>
-          ))}
-        </div>
+          <Link
+            href="/contacto"
+            className="mt-2 w-fit font-semibold underline decoration-cielo decoration-2 underline-offset-[0.35em] transition-[text-decoration-color] duration-200 hover:decoration-white"
+          >
+            Qué pasa cuando nos escribes
+          </Link>
+        </Revelar>
+        <Revelar>
+          <Canales sobreOscuro />
+        </Revelar>
       </div>
     </section>
   );

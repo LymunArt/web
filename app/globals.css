@@ -51,7 +51,6 @@
   /* Fuentes: las variables las define next/font en app/layout.tsx */
   --font-titulo: var(--font-sora);
   --font-texto: var(--font-inter);
-  --font-dev: var(--font-cormorant);
 }
 
 html {
@@ -74,4 +73,302 @@ h1,
 h2,
 h3 {
   text-wrap: balance;
+}
+
+/* Curva de salida para todo el movimiento del sitio: arranca rápido y se asienta suave */
+:root {
+  --salida: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Las partes del navegador también llevan la marca: selección, foco y barra de desplazamiento */
+::selection {
+  background: var(--color-cielo);
+  color: var(--color-tinta-fija);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-naranja);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+html {
+  scrollbar-color: var(--linea) var(--fondo);
+}
+
+a {
+  text-underline-offset: 0.25em;
+}
+
+/* Encabezado: arriba del todo se funde con la página; la línea aparece cuando el contenido pasa por debajo */
+@supports (animation-timeline: scroll()) {
+  .encabezado {
+    animation: encabezado-borde linear both;
+    animation-timeline: scroll();
+    animation-range: 0 48px;
+  }
+}
+
+@keyframes encabezado-borde {
+  from {
+    border-bottom-color: transparent;
+  }
+}
+
+/* Entradas: las secciones aparecen al llegar a ellas (components/Revelar.tsx).
+   Con movimiento reducido solo cambia la opacidad, sin desplazamiento ni desenfoque. */
+[data-revelar] {
+  transition:
+    opacity 900ms var(--salida),
+    translate 900ms var(--salida),
+    filter 900ms var(--salida);
+}
+
+[data-revelar="oculto"] {
+  opacity: 0;
+  translate: 0 1.25rem;
+  filter: blur(6px);
+}
+
+/* Portada: entra al cargar, en orden de lectura (--retraso en cada pieza) */
+@keyframes entrada {
+  from {
+    opacity: 0;
+    translate: 0 0.75rem;
+    filter: blur(6px);
+  }
+}
+
+.entrada {
+  animation: entrada 1000ms var(--salida) var(--retraso, 0ms) both;
+}
+
+/* "lo propio": las letras pasan de tinta a naranja, como el "Art" de LymunArt.
+   El naranja cumple contraste de texto grande en claro y en oscuro; el azul cielo no se leería sobre crema. */
+@keyframes resaltar {
+  from {
+    color: var(--tinta);
+  }
+}
+
+.resaltado {
+  color: var(--color-naranja);
+  animation: resaltar 900ms var(--salida) 600ms both;
+}
+
+/* Escenas de servicios (components/servicios/Escena.tsx): se arman cuando su bloque queda "visible".
+   Sin esa señal (sin JavaScript) se ve la escena terminada. */
+.escena * {
+  transform-box: fill-box;
+}
+
+[data-revelar="visible"] .escena {
+  .e-aparece {
+    animation: e-aparece 700ms var(--salida) var(--d, 0ms) both;
+  }
+  .e-escala {
+    transform-origin: center;
+    animation: e-escala 600ms var(--salida) var(--d, 0ms) both;
+  }
+  .e-crece-x {
+    transform-origin: left center;
+    animation: e-crece-x 800ms var(--salida) var(--d, 0ms) both;
+  }
+  .e-crece-y {
+    transform-origin: center bottom;
+    animation: e-crece-y 900ms var(--salida) var(--d, 0ms) both;
+  }
+  .e-desliza {
+    animation: e-desliza 800ms var(--salida) var(--d, 0ms) both;
+  }
+  .e-barrido {
+    animation: e-barrido 1100ms cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) both;
+  }
+  .e-cursor {
+    animation: e-cursor 1100ms var(--salida) var(--d, 0ms) both;
+  }
+  .e-viaja {
+    animation: e-viaja 1600ms cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) infinite;
+  }
+}
+
+@keyframes e-aparece {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+@keyframes e-escala {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+@keyframes e-crece-x {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes e-crece-y {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes e-desliza {
+  from {
+    opacity: 0;
+    translate: -28px 0;
+  }
+}
+
+/* El barrido baja por la pantalla y desaparece al terminar el diagnóstico */
+@keyframes e-barrido {
+  from {
+    opacity: 0.9;
+    translate: 0 0;
+  }
+  to {
+    opacity: 0;
+    translate: 0 91px;
+  }
+}
+
+/* El cursor llega desde abajo a la derecha y hace clic en el botón */
+@keyframes e-cursor {
+  0% {
+    opacity: 0;
+    translate: 120px 40px;
+  }
+  70% {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+  85% {
+    scale: 0.85;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+/* Un dato que viaja de la hoja al reporte, una y otra vez */
+@keyframes e-viaja {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  15%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: 40px 0;
+  }
+}
+
+/* Cómo trabajamos: la línea se traza de un paso al siguiente y cada número aparece cuando la línea llega.
+   En celular la línea baja; en computador avanza hacia la derecha. */
+.pasos-linea {
+  transform-origin: center top;
+}
+
+.pasos-nodo {
+  transform-origin: center;
+}
+
+@media (width >= 48rem) {
+  .pasos-linea {
+    transform-origin: left center;
+  }
+}
+
+[data-revelar="visible"] {
+  .pasos-linea {
+    animation: pasos-linea-y 700ms var(--salida) var(--d, 0ms) both;
+  }
+  .pasos-nodo {
+    animation: e-escala 600ms var(--salida) var(--d, 0ms) both;
+  }
+}
+
+@media (width >= 48rem) {
+  [data-revelar="visible"] .pasos-linea {
+    animation-name: pasos-linea-x;
+  }
+}
+
+@keyframes pasos-linea-y {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes pasos-linea-x {
+  from {
+    scale: 0 1;
+  }
+}
+
+/* LymunArt Dev: el camino 1 → 2 → 3 se traza siempre en horizontal */
+.dev-linea {
+  transform-origin: left center;
+}
+
+[data-revelar="visible"] .dev-linea {
+  animation: pasos-linea-x 700ms var(--salida) var(--d, 0ms) both;
+}
+
+/* Botón "Ganaste tu acceso a LymunArt Dev": un brillo cruza una sola vez al aparecer */
+.acceso-dev {
+  position: relative;
+  overflow: hidden;
+}
+
+.acceso-dev::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.28) 50%, transparent 70%);
+  translate: -100% 0;
+  animation: brillo 1200ms var(--salida) 700ms both;
+  pointer-events: none;
+}
+
+@keyframes brillo {
+  to {
+    translate: 100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-revelar] {
+    transition: opacity 400ms ease;
+  }
+
+  [data-revelar="oculto"] {
+    translate: none;
+    filter: none;
+  }
+
+  .entrada {
+    animation-name: none;
+  }
+
+  .resaltado {
+    animation: none;
+  }
+
+  .acceso-dev::after,
+  .dev-linea,
+  .escena *,
+  .pasos-linea,
+  .pasos-nodo {
+    animation: none !important;
+  }
 }

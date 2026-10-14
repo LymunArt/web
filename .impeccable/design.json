@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-14T17:25:14.085Z",
+  "generatedAt": "2026-10-14T17:34:14.438Z",
   "title": "Design System: LymunArt",
   "extensions": {
     "colorMeta": {
@@ -120,7 +120,7 @@
     "shadows": [
       {
         "name": "brillo-de-accion",
-        "value": "0 6px 16px -6px rgb(217 102 26 / 0.6)",
+        "value": "0 6px 16px -6px rgb(191 86 18 / 0.6)",
         "purpose": "Solo bajo el botón principal de la portada."
       },
       {
@@ -188,7 +188,7 @@
       "refersTo": "button-primary",
       "description": "La única acción principal de cada vista.",
       "html": "<a class=\"ds-btn-primary\" href=\"#\">Cuéntanos tu idea</a>",
-      "css": ".ds-btn-primary{display:inline-block;background:#D9661A;color:#fff;padding:14px 24px;border-radius:12px;font:600 1rem/1.4 Inter,system-ui,sans-serif;text-decoration:none;transition:background-color 100ms,scale 100ms}.ds-btn-primary:hover{background:#BF5612}.ds-btn-primary:active{scale:.97}.ds-btn-primary:focus-visible{outline:2px solid #D9661A;outline-offset:3px}"
+      "css": ".ds-btn-primary{display:inline-block;background:#BF5612;color:#fff;padding:14px 24px;border-radius:12px;font:600 1rem/1.4 Inter,system-ui,sans-serif;text-decoration:none;transition:background-color 100ms,scale 100ms}.ds-btn-primary:hover{background:#A8490D}.ds-btn-primary:active{scale:.97}.ds-btn-primary:focus-visible{outline:2px solid #D9661A;outline-offset:3px}"
     },
     {
       "name": "Enlace de camino",
@@ -236,7 +236,7 @@
       "refersTo": "paso",
       "description": "Círculos unidos por una línea cielo; la entrega es naranja.",
       "html": "<ol class=\"ds-pasos\"><li><b>1</b>Nos cuentas</li><li><b>2</b>Te proponemos</li><li class=\"ds-fin\"><b>4</b>Te entregamos lo tuyo</li></ol>",
-      "css": ".ds-pasos{display:flex;gap:32px;list-style:none;margin:0;padding:0;font:600 1rem Sora,system-ui,sans-serif;color:#1E1B2E}.ds-pasos li{display:flex;flex-direction:column;gap:12px;position:relative}.ds-pasos li:not(:last-child)::after{content:\"\";position:absolute;top:23px;left:56px;right:-24px;height:2px;background:#B8E6F9;border-radius:2px}.ds-pasos b{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;border:2px solid #B8E6F9;background:#fff;font-size:1.125rem}.ds-fin b{background:#D9661A;border-color:#D9661A;color:#fff}"
+      "css": ".ds-pasos{display:flex;gap:32px;list-style:none;margin:0;padding:0;font:600 1rem Sora,system-ui,sans-serif;color:#1E1B2E}.ds-pasos li{display:flex;flex-direction:column;gap:12px;position:relative}.ds-pasos li:not(:last-child)::after{content:\"\";position:absolute;top:23px;left:56px;right:-24px;height:2px;background:#B8E6F9;border-radius:2px}.ds-pasos b{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;border:2px solid #B8E6F9;background:#fff;font-size:1.125rem}.ds-fin b{background:#BF5612;border-color:#BF5612;color:#fff}"
     },
     {
       "name": "Botón de acceso a Dev",
@@ -269,6 +269,11 @@
         "section": "colors"
       },
       {
+        "name": "The Texto Blanco Va Sobre Hondo Rule",
+        "body": "Si un naranja lleva texto blanco encima, es Naranja Atardecer Hondo, nunca el naranja de marca: así el texto cumple el contraste AA (4.5:1).",
+        "section": "colors"
+      },
+      {
         "name": "The Cielo No Se Lee Rule",
         "body": "El cielo se ve, no se lee: va como subrayado, fondo, línea o borde, nunca como texto sobre fondo claro.",
         "section": "colors"
@@ -295,7 +300,7 @@
       }
     ],
     "dos": [
-      "Do usar Naranja Atardecer (#D9661A) solo para la acción principal y para lo que es del cliente.",
+      "Do usar el naranja solo para la acción principal y para lo que es del cliente: Naranja Atardecer Hondo (#BF5612) cuando lleva texto blanco encima y Naranja Atardecer (#D9661A) para resaltar.",
       "Do resaltar enlaces y la página actual con un subrayado Cielo de Madrugada (#B8E6F9) de 2 px, dejando el texto en tinta.",
       "Do animar con la curva de salida `cubic-bezier(0.16, 1, 0.3, 1)`: entradas de 900–1000 ms con un desplazamiento de 12–20 px y un desenfoque de 6 px que se aclara, y respuesta al presionar en 100 ms (escala 0.97).",
       "Do dejar todo visible por defecto: las animaciones de entrada solo ocultan lo que todavía no está en pantalla, y con `prefers-reduced-motion` solo cambia la opacidad.",

@@ -8,6 +8,11 @@
   --color-naranja: #D9661A;
   --color-naranja-hover: #BF5612;
   --color-naranja-claro: #FCEBD9;
+
+  /* Fondo de botones con texto blanco: el naranja hondo cumple contraste AA (4.61:1);
+     el naranja de marca (#D9661A) queda para resaltar, no como fondo de texto */
+  --color-boton: #BF5612;
+  --color-boton-hover: #A8490D;
   --color-lila: #B79CED;
   --color-lila-claro: #EFEAF8;
   --color-lila-tinta: #3F2A70;

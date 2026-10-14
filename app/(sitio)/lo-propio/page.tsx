@@ -65,7 +65,7 @@ export default function PaginaLoPropio() {
             </div>
             <Link
               href="/contacto"
-              className="shrink-0 rounded-xl bg-naranja px-6 py-3.5 font-semibold text-white transition-[background-color,scale] duration-100 hover:bg-naranja-hover active:scale-[0.97]"
+              className="shrink-0 rounded-xl bg-boton px-6 py-3.5 font-semibold text-white transition-[background-color,scale] duration-100 hover:bg-boton-hover active:scale-[0.97]"
             >
               Cuéntanos tu idea
             </Link>

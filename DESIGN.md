@@ -4,6 +4,7 @@ description: Soluciones tecnológicas que quedan a nombre del cliente. No hay na
 colors:
   naranja-atardecer: "#D9661A"
   naranja-atardecer-hondo: "#BF5612"
+  naranja-brasa: "#A8490D"
   cielo-de-madrugada: "#B8E6F9"
   cielo-hondo: "#0D4A63"
   tinta-de-noche: "#1E1B2E"
@@ -67,12 +68,12 @@ spacing:
   contenedor: "72rem"
 components:
   button-primary:
-    backgroundColor: "{colors.naranja-atardecer}"
+    backgroundColor: "{colors.naranja-atardecer-hondo}"
     textColor: "{colors.superficie}"
     rounded: "{rounded.lg}"
     padding: "14px 24px"
   button-primary-hover:
-    backgroundColor: "{colors.naranja-atardecer-hondo}"
+    backgroundColor: "{colors.naranja-brasa}"
     textColor: "{colors.superficie}"
   link-camino:
     textColor: "{colors.tinta-de-noche}"
@@ -126,7 +127,8 @@ LymunArt Dev es el mismo mundo de noche cerrada: negro, vinotinto y blanco, siem
 Una paleta corta y con roles fijos: un naranja cálido para actuar, un azul cielo pálido para orientar y una tinta violácea casi negra para leer, sobre crema.
 
 ### Primary
-- **Naranja Atardecer** (#D9661A): la acción principal ("Cuéntanos tu idea"), las palabras "lo propio" del titular, el "Art" del logo de texto, los vistos de lo que incluye cada servicio, el último paso del proceso y el anillo de foco del teclado. En hover baja a **Naranja Atardecer Hondo** (#BF5612).
+- **Naranja Atardecer** (#D9661A): el naranja de la marca para resaltar: las palabras "lo propio" del titular, el "Art" del logo de texto, los vistos de lo que incluye cada servicio y el anillo de foco del teclado.
+- **Naranja Atardecer Hondo** (#BF5612): el fondo de todo lo que lleva texto blanco encima: los botones de acción ("Cuéntanos tu idea") y el círculo del último paso del proceso. Da 4.61:1 con blanco; el naranja de marca solo llega a 3.58:1. En hover baja a **Naranja Brasa** (#A8490D, 5.80:1).
 
 ### Secondary
 - **Cielo de Madrugada** (#B8E6F9): el color del camino. Subraya enlaces y marca la página actual en el menú, traza las líneas de tiempo y los bordes de los pasos, rellena las etiquetas "Tú decides", tiñe el fondo de las escenas de servicios y de la franja de "Lo propio", y colorea la selección de texto. Nunca va como color de texto sobre crema (contraste 1,2:1); en modo oscuro sí puede pintar texto. Para texto sobre una franja cielo se usa **Cielo Hondo** (#0D4A63).
@@ -148,6 +150,8 @@ Una paleta corta y con roles fijos: un naranja cálido para actuar, un azul ciel
 **The Tres Colores Rule.** En la web trabajan solo crema/blanco, Naranja Atardecer y Cielo de Madrugada, más la tinta para leer. Cualquier otro color de la guía espera un momento especial y nombrado.
 
 **The Naranja Es Tuyo Rule.** El naranja marca lo que el cliente hace o lo que recibe: la acción principal, lo que es suyo, la entrega. Si un elemento no es ni una acción ni algo del cliente, no es naranja.
+
+**The Texto Blanco Va Sobre Hondo Rule.** Si un naranja lleva texto blanco encima, es Naranja Atardecer Hondo, nunca el naranja de marca: así el texto cumple el contraste AA (4.5:1).
 
 **The Cielo No Se Lee Rule.** El cielo se ve, no se lee: va como subrayado, fondo, línea o borde, nunca como texto sobre fondo claro.
 
@@ -184,7 +188,7 @@ En celular todo se apila en orden de lectura: la comparación pone el problema a
 Plano por defecto. La profundidad viene del tono (crema, blanco, franja cielo, franja de tinta) y de líneas finas, no de sombras. Solo dos elementos flotan, y por una razón: el botón principal de la portada, para que sea lo primero que se toca, y la tabla de comparación, para que se despegue de la franja cielo. El encabezado es una capa translúcida que deja pasar el contenido por debajo, y su línea inferior aparece solo cuando hay algo debajo.
 
 ### Shadow Vocabulary
-- **Brillo de acción** (`box-shadow: 0 6px 16px -6px rgb(217 102 26 / 0.6)`): solo bajo el botón principal de la portada.
+- **Brillo de acción** (`box-shadow: 0 6px 16px -6px rgb(191 86 18 / 0.6)`): solo bajo el botón principal de la portada.
 - **Tarjeta sobre franja** (`box-shadow: 0 12px 32px -16px rgb(13 74 99 / 0.3)`): la tabla de comparación sobre la franja cielo. En oscuro, la misma forma en negro al 50%.
 - **Capa del encabezado** (`backdrop-filter: blur(24px) saturate(1.5)` sobre el fondo al 80%): el encabezado fijo.
 
@@ -201,8 +205,8 @@ Las escenas de los servicios son geometría vectorial con el mismo lenguaje: con
 ### Buttons
 Táctiles: responden en el instante en que se presionan.
 - **Shape:** esquinas suaves (12 px).
-- **Primary:** fondo Naranja Atardecer, texto blanco en Inter 600, 14 px × 24 px. Un solo botón principal por vista.
-- **Hover / Active:** el fondo baja a Naranja Atardecer Hondo; al presionar, el botón se encoge a 97% en 100 ms.
+- **Primary:** fondo Naranja Atardecer Hondo, texto blanco en Inter 600, 14 px × 24 px. Un solo botón principal por vista.
+- **Hover / Active:** el fondo baja a Naranja Brasa; al presionar, el botón se encoge a 97% en 100 ms.
 - **Focus:** anillo naranja de 2 px separado 3 px del botón.
 - **Secundario:** no es un botón, es un enlace con subrayado cielo de 2 px y una flecha que avanza 2 px en hover.
 
@@ -222,7 +226,7 @@ Táctiles: responden en el instante en que se presionan.
 - **Celular:** botón de dos líneas que se cruzan en una X. El panel a pantalla completa baja 8 px desde el encabezado y sube por el mismo camino; los enlaces en Sora 1.5rem entran uno tras otro (40 ms entre cada uno). La acción principal queda abajo.
 
 ### Línea de tiempo del proceso
-Círculos de 48 px con borde cielo unidos por una línea cielo de 2 px. Al entrar en pantalla, la línea se traza de un paso al siguiente y cada número aparece cuando la línea llega. El último paso, la entrega, es un círculo naranja relleno.
+Círculos de 48 px con borde cielo unidos por una línea cielo de 2 px. Al entrar en pantalla, la línea se traza de un paso al siguiente y cada número aparece cuando la línea llega. El último paso, la entrega, es un círculo relleno de Naranja Atardecer Hondo con el número en blanco.
 
 ### Escenas de servicios
 Una escena vectorial de 320 × 200 por servicio que se arma al entrar en pantalla: bloques que crecen desde su borde, piezas que aparecen escaladas, un cursor que hace clic. Solo el dato que viaja en Automatización se repite. Sin JavaScript o con movimiento reducido se ve la escena terminada.
@@ -233,7 +237,7 @@ La llave de la metáfora. Fondo vinotinto, texto blanco, ícono de llave y un br
 ## Do's and Don'ts
 
 ### Do:
-- **Do** usar Naranja Atardecer (#D9661A) solo para la acción principal y para lo que es del cliente.
+- **Do** usar el naranja solo para la acción principal y para lo que es del cliente: Naranja Atardecer Hondo (#BF5612) cuando lleva texto blanco encima y Naranja Atardecer (#D9661A) para resaltar.
 - **Do** resaltar enlaces y la página actual con un subrayado Cielo de Madrugada (#B8E6F9) de 2 px, dejando el texto en tinta.
 - **Do** animar con la curva de salida `cubic-bezier(0.16, 1, 0.3, 1)`: entradas de 900–1000 ms con un desplazamiento de 12–20 px y un desenfoque de 6 px que se aclara, y respuesta al presionar en 100 ms (escala 0.97).
 - **Do** dejar todo visible por defecto: las animaciones de entrada solo ocultan lo que todavía no está en pantalla, y con `prefers-reduced-motion` solo cambia la opacidad.

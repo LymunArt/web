@@ -22,7 +22,7 @@ export default function Portada() {
         <div style={retraso(260)} className="entrada mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
           <Link
             href="/contacto"
-            className="rounded-xl bg-naranja px-6 py-3.5 font-semibold text-white shadow-[0_6px_16px_-6px] shadow-naranja/60 transition-[background-color,scale] duration-100 hover:bg-naranja-hover active:scale-[0.97]"
+            className="rounded-xl bg-boton px-6 py-3.5 font-semibold text-white shadow-[0_6px_16px_-6px] shadow-boton/60 transition-[background-color,scale] duration-100 hover:bg-boton-hover active:scale-[0.97]"
           >
             Cuéntanos qué necesitas
           </Link>

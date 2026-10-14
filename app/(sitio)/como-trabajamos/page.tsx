@@ -33,7 +33,7 @@ export default function PaginaComoTrabajamos() {
               <Revelar className="grid gap-6 border-t border-linea py-10 md:grid-cols-[5rem_1fr_1fr_1fr] md:gap-10 md:py-12">
                 <span
                   className={`flex size-14 items-center justify-center rounded-full font-titulo text-xl font-bold ${
-                    ultimo ? "bg-naranja text-white" : "border-2 border-cielo bg-superficie"
+                    ultimo ? "bg-boton text-white" : "border-2 border-cielo bg-superficie"
                   }`}
                 >
                   {i + 1}
@@ -76,7 +76,7 @@ export default function PaginaComoTrabajamos() {
             </div>
             <Link
               href="/contacto"
-              className="shrink-0 rounded-xl bg-naranja px-6 py-3.5 font-semibold text-white transition-[background-color,scale] duration-100 hover:bg-naranja-hover active:scale-[0.97]"
+              className="shrink-0 rounded-xl bg-boton px-6 py-3.5 font-semibold text-white transition-[background-color,scale] duration-100 hover:bg-boton-hover active:scale-[0.97]"
             >
               Cuéntanos tu idea
             </Link>

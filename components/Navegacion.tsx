@@ -74,7 +74,7 @@ export default function Navegacion({ servicios }: { servicios: number | null }) 
         <BotonTema />
         <Link
           href={enlaceContacto.href}
-          className="hidden rounded-lg bg-naranja px-4 py-2.5 text-sm font-semibold text-white transition-[background-color,scale] duration-100 hover:bg-naranja-hover active:scale-[0.97] sm:block"
+          className="hidden rounded-lg bg-boton px-4 py-2.5 text-sm font-semibold text-white transition-[background-color,scale] duration-100 hover:bg-boton-hover active:scale-[0.97] sm:block"
         >
           {enlaceContacto.texto}
         </Link>
@@ -145,7 +145,7 @@ export default function Navegacion({ servicios }: { servicios: number | null }) 
             <Link
               href={enlaceContacto.href}
               onClick={() => setAbierto(false)}
-              className="rounded-xl bg-naranja px-5 py-4 text-center font-semibold text-white transition-[background-color,scale] duration-100 hover:bg-naranja-hover active:scale-[0.98]"
+              className="rounded-xl bg-boton px-5 py-4 text-center font-semibold text-white transition-[background-color,scale] duration-100 hover:bg-boton-hover active:scale-[0.98]"
             >
               {enlaceContacto.texto}
             </Link>

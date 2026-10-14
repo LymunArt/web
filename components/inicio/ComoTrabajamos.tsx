@@ -45,7 +45,7 @@ export default function ComoTrabajamos() {
                   <span
                     style={d(100 + i * 280)}
                     className={`pasos-nodo relative flex size-12 shrink-0 items-center justify-center rounded-full font-titulo text-lg font-bold ${
-                      ultimo ? "bg-naranja text-white" : "border-2 border-cielo bg-superficie text-tinta"
+                      ultimo ? "bg-boton text-white" : "border-2 border-cielo bg-superficie text-tinta"
                     }`}
                   >
                     {i + 1}

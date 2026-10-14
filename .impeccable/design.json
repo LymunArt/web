@@ -1,0 +1,320 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T17:34:14.438Z",
+  "title": "Design System: LymunArt",
+  "extensions": {
+    "colorMeta": {
+      "naranja-atardecer": {
+        "role": "primary",
+        "displayName": "Naranja Atardecer",
+        "canonical": "oklch(64.0% 0.165 47.8)",
+        "tonalRamp": [
+          "#1b0300",
+          "#411600",
+          "#6c2d01",
+          "#9c4300",
+          "#ce5c03",
+          "#f6803c",
+          "#ffb691",
+          "#ffeadf"
+        ]
+      },
+      "cielo-de-madrugada": {
+        "role": "secondary",
+        "displayName": "Cielo de Madrugada",
+        "canonical": "oklch(89.9% 0.054 225.0)",
+        "tonalRamp": [
+          "#000e15",
+          "#002a37",
+          "#1d4858",
+          "#3d6879",
+          "#5e8a9b",
+          "#80adbf",
+          "#a4d1e4",
+          "#d9f4ff"
+        ]
+      },
+      "tinta-de-noche": {
+        "role": "neutral",
+        "displayName": "Tinta de Noche",
+        "canonical": "oklch(23.5% 0.036 290.6)",
+        "tonalRamp": [
+          "#0b0819",
+          "#252235",
+          "#423f54",
+          "#615e75",
+          "#827f97",
+          "#a4a2bb",
+          "#c8c6e0",
+          "#eeecfe"
+        ]
+      },
+      "crema": {
+        "role": "neutral",
+        "displayName": "Crema",
+        "canonical": "oklch(98.0% 0.005 78.3)",
+        "tonalRamp": [
+          "#0c0b09",
+          "#262523",
+          "#43423f",
+          "#63615e",
+          "#84827f",
+          "#a6a5a2",
+          "#cbc9c6",
+          "#f0eeeb"
+        ]
+      },
+      "lila-reservado": {
+        "role": "tertiary",
+        "displayName": "Lila (reservado)",
+        "canonical": "oklch(74.7% 0.117 298.9)",
+        "tonalRamp": [
+          "#12002a",
+          "#2f0e54",
+          "#4c2f77",
+          "#6b509a",
+          "#8c71bf",
+          "#af94e4",
+          "#d1bcfe",
+          "#f1ebff"
+        ]
+      },
+      "dev-vinotinto": {
+        "role": "custom",
+        "displayName": "Vinotinto Dev",
+        "canonical": "oklch(22.2% 0.066 8.2)",
+        "tonalRamp": [
+          "#1f0006",
+          "#3f151f",
+          "#60323b",
+          "#82515a",
+          "#a6727b",
+          "#ca949d",
+          "#f0b8c1",
+          "#fee8eb"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Titular de la portada y de cada página."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Título de cada sección; 1.875rem en celular, 2.75rem desde 640 px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de tarjetas, pasos y canales."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Párrafo introductorio de cada sección; el texto corriente va a 1rem."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Encabezados de columna, títulos del footer y enlaces de acción secundarios."
+      }
+    },
+    "shadows": [
+      {
+        "name": "brillo-de-accion",
+        "value": "0 6px 16px -6px rgb(191 86 18 / 0.6)",
+        "purpose": "Solo bajo el botón principal de la portada."
+      },
+      {
+        "name": "tarjeta-sobre-franja",
+        "value": "0 12px 32px -16px rgb(13 74 99 / 0.3)",
+        "purpose": "La tabla de comparación sobre la franja cielo."
+      },
+      {
+        "name": "capa-encabezado",
+        "value": "backdrop-filter: blur(24px) saturate(1.5)",
+        "purpose": "Encabezado fijo translúcido sobre el fondo al 80%."
+      }
+    ],
+    "motion": [
+      {
+        "name": "salida",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Curva única del sitio: arranca rápido y se asienta suave."
+      },
+      {
+        "name": "revelar",
+        "value": "900ms salida; opacity 0→1, translate 1.25rem→0, blur 6px→0",
+        "purpose": "Secciones que entran al llegar a ellas."
+      },
+      {
+        "name": "entrada",
+        "value": "1000ms salida, en orden de lectura con --retraso",
+        "purpose": "Titulares y primer bloque al cargar cada página."
+      },
+      {
+        "name": "presionar",
+        "value": "100ms; scale 0.97",
+        "purpose": "Respuesta inmediata de botones y tarjetas al presionar."
+      },
+      {
+        "name": "trazar",
+        "value": "700ms salida; scale 0→1 desde el borde",
+        "purpose": "Líneas de tiempo que se trazan de un paso al siguiente."
+      },
+      {
+        "name": "brillo-llave",
+        "value": "1200ms salida, 700ms de espera, una sola vez",
+        "purpose": "Brillo del botón de acceso a LymunArt Dev."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "La única acción principal de cada vista.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">Cuéntanos tu idea</a>",
+      "css": ".ds-btn-primary{display:inline-block;background:#BF5612;color:#fff;padding:14px 24px;border-radius:12px;font:600 1rem/1.4 Inter,system-ui,sans-serif;text-decoration:none;transition:background-color 100ms,scale 100ms}.ds-btn-primary:hover{background:#A8490D}.ds-btn-primary:active{scale:.97}.ds-btn-primary:focus-visible{outline:2px solid #D9661A;outline-offset:3px}"
+    },
+    {
+      "name": "Enlace de camino",
+      "kind": "custom",
+      "refersTo": "link-camino",
+      "description": "Acción secundaria: subrayado cielo y flecha que avanza.",
+      "html": "<a class=\"ds-link-camino\" href=\"#\">Ver servicios <svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-link-camino{display:inline-flex;align-items:center;gap:6px;color:#1E1B2E;font:600 1rem Inter,system-ui,sans-serif;text-decoration:underline 2px #B8E6F9;text-underline-offset:.35em;transition:text-decoration-color 200ms}.ds-link-camino svg{transition:translate 300ms cubic-bezier(0.16, 1, 0.3, 1)}.ds-link-camino:hover{text-decoration-color:#1E1B2E}.ds-link-camino:hover svg{translate:2px 0}.ds-link-camino:focus-visible{outline:2px solid #D9661A;outline-offset:3px;border-radius:6px}"
+    },
+    {
+      "name": "Navegación",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Enlaces del encabezado con la página actual subrayada en cielo.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-marca\" href=\"#\">Lymun<span>Art</span></a><a href=\"#\" aria-current=\"page\">Servicios</a><a href=\"#\">Lo propio</a><a href=\"#\">Cómo trabajamos</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:4px;padding:12px 16px;background:rgb(250 248 245 / .8);backdrop-filter:blur(24px) saturate(1.5);font:400 .875rem Inter,system-ui,sans-serif}.ds-nav a{color:#4A4560;padding:8px 12px;text-decoration:underline 2px transparent;text-underline-offset:.25em;transition:color 200ms,text-decoration-color 200ms}.ds-nav a:hover,.ds-nav a[aria-current=page]{color:#1E1B2E;text-decoration-color:#B8E6F9}.ds-nav .ds-nav-marca{font:700 1.125rem Sora,system-ui,sans-serif;color:#1E1B2E;margin-right:auto;text-decoration:none}.ds-nav-marca span{color:#D9661A}"
+    },
+    {
+      "name": "Etiqueta Tú decides",
+      "kind": "chip",
+      "refersTo": "chip-decides",
+      "description": "Marca los pasos en los que el cliente aprueba.",
+      "html": "<span class=\"ds-chip-decides\">Tú decides</span>",
+      "css": ".ds-chip-decides{display:inline-block;background:#B8E6F9;color:#1E1B2E;padding:4px 10px;border-radius:9999px;font:600 .75rem Inter,system-ui,sans-serif}"
+    },
+    {
+      "name": "Etiqueta Próximamente",
+      "kind": "chip",
+      "refersTo": "chip-proximamente",
+      "description": "Lo que todavía no está activo.",
+      "html": "<span class=\"ds-chip-pronto\">Próximamente</span>",
+      "css": ".ds-chip-pronto{display:inline-block;border:1px solid #B8E6F9;background:rgb(184 230 249 / .25);color:#1E1B2E;padding:2px 10px;border-radius:9999px;font:600 .75rem Inter,system-ui,sans-serif}"
+    },
+    {
+      "name": "Tarjeta de servicio",
+      "kind": "card",
+      "refersTo": "card-servicio",
+      "description": "Toda la tarjeta es un enlace; escena arriba sobre panel cielo.",
+      "html": "<a class=\"ds-card\" href=\"#\"><div class=\"ds-card-escena\"><svg viewBox=\"0 0 320 200\"><rect x=\"70\" y=\"26\" width=\"180\" height=\"118\" rx=\"10\" fill=\"#fff\" stroke=\"#1E1B2E\" stroke-width=\"2.5\"/><rect x=\"112\" y=\"56\" width=\"104\" height=\"8\" rx=\"4\" fill=\"#B8E6F9\"/><rect x=\"112\" y=\"81\" width=\"104\" height=\"8\" rx=\"4\" fill=\"#B8E6F9\"/><circle cx=\"98\" cy=\"60\" r=\"7\" fill=\"#D9661A\"/><circle cx=\"98\" cy=\"85\" r=\"7\" fill=\"#D9661A\"/><path d=\"M146 144h28l5 20h-38z\" fill=\"#fff\" stroke=\"#1E1B2E\" stroke-width=\"2.5\"/></svg></div><div class=\"ds-card-cuerpo\"><h3>Mantenimiento de equipos</h3><p>Revisamos, limpiamos y optimizamos tus computadores para que trabajen sin interrupciones.</p><span>Ver qué incluye →</span></div></a>",
+      "css": ".ds-card{display:flex;flex-direction:column;max-width:420px;overflow:hidden;border:1px solid #E4E0EA;border-radius:16px;background:#fff;color:#1E1B2E;text-decoration:none;transition:border-color 200ms,scale 200ms}.ds-card:hover{border-color:rgb(74 69 96 / .5)}.ds-card:active{scale:.99}.ds-card-escena{background:rgb(184 230 249 / .35);padding:24px 24px 0}.ds-card-escena svg{display:block;width:100%;transition:translate 500ms cubic-bezier(0.16, 1, 0.3, 1)}.ds-card:hover .ds-card-escena svg{translate:0 -4px}.ds-card-cuerpo{padding:28px;display:flex;flex-direction:column;gap:12px;font:400 1rem/1.5 Inter,system-ui,sans-serif}.ds-card-cuerpo h3{margin:0;font:600 1.25rem Sora,system-ui,sans-serif;letter-spacing:-.015em}.ds-card-cuerpo p{margin:0;color:#4A4560}.ds-card-cuerpo span{font-weight:600;font-size:.875rem}"
+    },
+    {
+      "name": "Paso de la línea de tiempo",
+      "kind": "custom",
+      "refersTo": "paso",
+      "description": "Círculos unidos por una línea cielo; la entrega es naranja.",
+      "html": "<ol class=\"ds-pasos\"><li><b>1</b>Nos cuentas</li><li><b>2</b>Te proponemos</li><li class=\"ds-fin\"><b>4</b>Te entregamos lo tuyo</li></ol>",
+      "css": ".ds-pasos{display:flex;gap:32px;list-style:none;margin:0;padding:0;font:600 1rem Sora,system-ui,sans-serif;color:#1E1B2E}.ds-pasos li{display:flex;flex-direction:column;gap:12px;position:relative}.ds-pasos li:not(:last-child)::after{content:\"\";position:absolute;top:23px;left:56px;right:-24px;height:2px;background:#B8E6F9;border-radius:2px}.ds-pasos b{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;border:2px solid #B8E6F9;background:#fff;font-size:1.125rem}.ds-fin b{background:#BF5612;border-color:#BF5612;color:#fff}"
+    },
+    {
+      "name": "Botón de acceso a Dev",
+      "kind": "button",
+      "refersTo": "button-acceso-dev",
+      "description": "La llave: aparece para el cliente con tres servicios completados.",
+      "html": "<a class=\"ds-btn-dev\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"15\" r=\"4\"/><path d=\"M10.8 12.2L20 3M16 7l3 3M18.5 4.5l2 2\"/></svg>Ganaste tu acceso a LymunArt Dev</a>",
+      "css": ".ds-btn-dev{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;background:#330A15;color:#fff;padding:10px 16px;border-radius:12px;font:600 .875rem Inter,system-ui,sans-serif;text-decoration:none;transition:background-color 100ms,scale 100ms}.ds-btn-dev::after{content:\"\";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgb(255 255 255 / .28) 50%,transparent 70%);translate:-100% 0;animation:ds-brillo 1200ms cubic-bezier(0.16, 1, 0.3, 1) 700ms both}.ds-btn-dev:hover{background:#4A1422}.ds-btn-dev:active{scale:.97}.ds-btn-dev:focus-visible{outline:2px solid #D9661A;outline-offset:3px}@keyframes ds-brillo{to{translate:100% 0}}@media (prefers-reduced-motion:reduce){.ds-btn-dev::after{animation:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Las llaves bajo la luna",
+    "overview": "La ciudad del logo (una luna creciente junto a cinco edificios) es el mundo: una ciudad tranquila, construida con orden, donde cada edificio es de alguien. Las llaves son el momento que importa en ese mundo: la entrega. Todo lo que la interfaz construye apunta a ese instante en que el cliente recibe lo suyo. El naranja marca lo que es o será del cliente, y el azul cielo ilumina el camino para llegar ahí.\n\nLa superficie es calma y clara: fondo crema, mucho aire entre secciones, tipografía firme en Sora para lo que se afirma e Inter para lo que se explica. La energía vive en la respuesta, no en el adorno. Cada elemento reacciona al tocarlo, las escenas de los servicios se arman frente al visitante, las líneas del proceso se trazan de un paso al siguiente y la llave del acceso a Dev brilla una sola vez. Es una interfaz táctil y viva sobre una base serena.\n\nLymunArt Dev es el mismo mundo de noche cerrada: negro, vinotinto y blanco, siempre oscuro, con las mismas fuentes y el mismo trato de tú. Ahí se llega con las llaves ya ganadas.",
+    "keyCharacteristics": [
+      "Base clara y serena; máximo tres colores con trabajo en la web: crema/blanco, Naranja Atardecer y Cielo de Madrugada, más Tinta de Noche para el texto.",
+      "El naranja nombra lo que es tuyo: la acción principal, \"lo propio\" en el titular, el último paso del proceso.",
+      "El cielo ilumina el camino: subrayados de enlaces, la página actual, las líneas de tiempo y los fondos que resaltan.",
+      "Movimiento como respuesta: entra al llegar, responde al tocar, nunca se repite sin razón.",
+      "Modo claro y oscuro con los mismos roles; LymunArt Dev es siempre oscuro."
+    ],
+    "rules": [
+      {
+        "name": "The Tres Colores Rule",
+        "body": "En la web trabajan solo crema/blanco, Naranja Atardecer y Cielo de Madrugada, más la tinta para leer. Cualquier otro color de la guía espera un momento especial y nombrado.",
+        "section": "colors"
+      },
+      {
+        "name": "The Naranja Es Tuyo Rule",
+        "body": "El naranja marca lo que el cliente hace o lo que recibe: la acción principal, lo que es suyo, la entrega. Si un elemento no es ni una acción ni algo del cliente, no es naranja.",
+        "section": "colors"
+      },
+      {
+        "name": "The Texto Blanco Va Sobre Hondo Rule",
+        "body": "Si un naranja lleva texto blanco encima, es Naranja Atardecer Hondo, nunca el naranja de marca: así el texto cumple el contraste AA (4.5:1).",
+        "section": "colors"
+      },
+      {
+        "name": "The Cielo No Se Lee Rule",
+        "body": "El cielo se ve, no se lee: va como subrayado, fondo, línea o borde, nunca como texto sobre fondo claro.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tracking Por Tamaño Rule",
+        "body": "Cuanto más grande el texto, más apretado: -0.035em en display, -0.025em en headline, -0.015em en title y normal en el cuerpo. Nunca un mismo espaciado de letras para todos los tamaños.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sin Etiqueta Rule",
+        "body": "Ningún título lleva una etiqueta pequeña en mayúsculas o monoespaciada encima. El título se sostiene solo.",
+        "section": "typography"
+      },
+      {
+        "name": "The Más Aire Arriba Rule",
+        "body": "Siempre hay más espacio encima de un título que debajo: el título pertenece a lo que sigue, no a lo que termina.",
+        "section": "layout"
+      },
+      {
+        "name": "The Una Elevación Rule",
+        "body": "Un elemento usa borde o sombra, nunca los dos. Una tarjeta con borde no lleva sombra.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usar el naranja solo para la acción principal y para lo que es del cliente: Naranja Atardecer Hondo (#BF5612) cuando lleva texto blanco encima y Naranja Atardecer (#D9661A) para resaltar.",
+      "Do resaltar enlaces y la página actual con un subrayado Cielo de Madrugada (#B8E6F9) de 2 px, dejando el texto en tinta.",
+      "Do animar con la curva de salida `cubic-bezier(0.16, 1, 0.3, 1)`: entradas de 900–1000 ms con un desplazamiento de 12–20 px y un desenfoque de 6 px que se aclara, y respuesta al presionar en 100 ms (escala 0.97).",
+      "Do dejar todo visible por defecto: las animaciones de entrada solo ocultan lo que todavía no está en pantalla, y con `prefers-reduced-motion` solo cambia la opacidad.",
+      "Do marcar lo que aún no existe con \"Próximamente\" y mostrar secciones de clientes, testimonios y redes solo con datos reales.",
+      "Do usar la versión negativa del logo sobre fondos oscuros y nunca mostrarlo por debajo de 64 px; en el encabezado va el logo de texto."
+    ],
+    "donts": [
+      "Don't usar el azul cielo como color de texto sobre crema o blanco.",
+      "Don't usar el lila ni otros colores de la guía en la web salvo en un momento especial nombrado, como finalizar o pagar.",
+      "Don't usar otras fuentes que Sora e Inter, tampoco en LymunArt Dev.",
+      "Don't poner etiquetas pequeñas en mayúsculas o monoespaciadas encima de los títulos.",
+      "Don't combinar borde y sombra en el mismo elemento, ni anidar tarjetas dentro de tarjetas.",
+      "Don't traer los colores de LymunArt Dev (negro y vinotinto) a la web principal, salvo el botón de acceso.",
+      "Don't repetir una animación en bucle sin que cuente algo; el único bucle del sitio es el dato que viaja en Automatización."
+    ]
+  }
+}

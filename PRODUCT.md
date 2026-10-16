@@ -28,7 +28,8 @@ Success: a non-technical business owner understands what LymunArt does, why owni
 
 - Four services: equipment maintenance (cleaning, backups, diagnosis and repair), websites (branded, mobile-ready, domain in the client's name, client-editable), mobile apps (Android and iPhone, store publication), and automation (inventories, appointments, orders, reports that today live in spreadsheets).
 - Working process: the client explains the need → receives a clear proposal with times and costs and decides → LymunArt builds while showing progress, and the client approves each stage → everything is handed over in the client's name.
-- Run by the founder, who works with freelance partners/allies as projects require. The site must not imply a large in-house team. Dev clients work directly with the founder.
+- For now LymunArt is the founder alone (working with AI tools); hiring is planned for later. The site must not imply a team or staff that does not exist yet. Dev clients work directly with the founder. (Updated 2026-10-15.)
+- Based in Bogotá, Colombia: registration with the Cámara de Comercio de Bogotá (CCB) and trademark registration with the SIC are in progress.
 
 ## Capabilities and Constraints
 

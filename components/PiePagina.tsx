@@ -61,8 +61,21 @@ export default function PiePagina() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl border-t border-linea px-4 py-6 text-sm text-tinta-suave sm:px-6">
+      {/* La matrícula da confianza: cualquiera puede verificarla en el RUES */}
+      <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-x-6 gap-y-2 border-t border-linea px-4 py-6 text-sm text-tinta-suave sm:px-6">
         <p>© 2026 LymunArt</p>
+        <p>
+          Matrícula mercantil n.º{" "}
+          <a
+            href="https://www.rues.org.co/buscar/RM/LymunArt"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tabular-nums underline decoration-cielo decoration-2 transition-[color] duration-200 hover:text-tinta"
+          >
+            4167058
+          </a>{" "}
+          · Cámara de Comercio de Bogotá
+        </p>
       </div>
     </footer>
   );

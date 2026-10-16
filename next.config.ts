@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Sin el indicador "N" de Next.js en desarrollo; los errores se siguen mostrando
+  devIndicators: false,
   experimental: {
     agentFeedback: true,
   },

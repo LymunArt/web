@@ -27,6 +27,30 @@ export const dispositivoAdmiteHuella = () =>
 
 export class ErrorDeCuenta extends Error {}
 
+// Lo que Supabase responde, dicho en palabras de la persona. Así sabe qué hacer en vez de un "no se pudo".
+function motivoDeCuenta(codigo: string | undefined, porDefecto: string) {
+  switch (codigo) {
+    case "email_address_not_authorized":
+      return "Todavía no podemos enviar correos a esa dirección. Avísale a quien te invitó para que habilite el registro.";
+    case "over_email_send_rate_limit":
+    case "over_request_rate_limit":
+      return "Se enviaron muchos correos en poco tiempo. Espera unos minutos e inténtalo otra vez.";
+    case "user_already_exists":
+    case "email_exists":
+      return "Ya hay una cuenta con ese correo. Toca Entrar.";
+    case "weak_password":
+      return "Esa clave es muy fácil de adivinar. Usa una más larga, con letras y números.";
+    case "email_address_invalid":
+      return "Revisa tu correo: no parece una dirección válida.";
+    case "email_not_confirmed":
+      return "Todavía no confirmas tu correo. Abre el enlace que te enviamos y vuelve a entrar.";
+    case "signup_disabled":
+      return "El registro de cuentas nuevas está cerrado por ahora.";
+    default:
+      return porDefecto;
+  }
+}
+
 const CLAVE_USUARIOS = "finanzas:usuarios";
 const CLAVE_SESION = "finanzas:sesion";
 const claveDatos = (id: string) => `finanzas:datos:${id}`;
@@ -141,12 +165,14 @@ async function crearBackendNube(url: string, llave: string): Promise<Backend> {
         // El enlace del correo de confirmación vuelve a la app, en el sitio donde se creó la cuenta
         options: { data: { nombre: nombre.trim() }, emailRedirectTo: `${window.location.origin}/finanzas` },
       });
-      if (error) throw new ErrorDeCuenta("No pudimos crear tu cuenta. Revisa el correo o usa una clave más larga.");
+      if (error) throw new ErrorDeCuenta(motivoDeCuenta(error.code, "No pudimos crear tu cuenta. Inténtalo otra vez en unos minutos."));
       return data.session && data.user ? aUsuario(data.user) : null;
     },
     async entrar(correo, clave) {
       const { data, error } = await cliente.auth.signInWithPassword({ email: correo.trim(), password: clave });
-      if (error || !data.user) throw new ErrorDeCuenta("El correo o la clave no coinciden. Revísalos e inténtalo otra vez.");
+      if (error || !data.user) {
+        throw new ErrorDeCuenta(motivoDeCuenta(error?.code, "El correo o la clave no coinciden. Revísalos e inténtalo otra vez."));
+      }
       return aUsuario(data.user);
     },
     async salir() {

@@ -104,14 +104,14 @@ function Conectar({ onCerrar }: { onCerrar: () => void }) {
               </Paso>
               <Paso n={3}>
                 <p>
-                  Abajo, en <strong className="font-semibold">Buscar</strong>, escribe <strong className="font-semibold">URL</strong> y toca <strong className="font-semibold">Obtener contenido de URL</strong>.
+                  Abajo, en <strong className="font-semibold">Buscar</strong>, escribe <strong className="font-semibold">contenido</strong> y toca <strong className="font-semibold">Obtener contenido de URL</strong>. No uses &quot;Abrir direcciones URL&quot;: esa abre Safari en cada compra.
                   Toca la palabra azul <strong className="font-semibold">URL</strong> y pega tu enlace.
                 </p>
               </Paso>
               <Paso n={4}>
                 <p>
-                  En el enlace, borra la palabra <code className="font-semibold">COMERCIO</code> y elige la variable <strong className="font-semibold">Comerciante</strong> que aparece arriba del teclado.
-                  Luego borra <code className="font-semibold">MONTO</code> y elige <strong className="font-semibold">Importe</strong>. Toca <strong className="font-semibold">Listo</strong>.
+                  En el enlace, borra la palabra <code className="font-semibold">COMERCIO</code> e inserta la variable <strong className="font-semibold">Transacción</strong>. Toca la burbuja que quedó y elige <strong className="font-semibold">Comercio</strong>.
+                  Luego borra <code className="font-semibold">MONTO</code>, inserta otra vez <strong className="font-semibold">Transacción</strong> y elige <strong className="font-semibold">Cantidad</strong>. Toca <strong className="font-semibold">Listo</strong>.
                 </p>
               </Paso>
               <Paso n={5}>

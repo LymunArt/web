@@ -99,6 +99,31 @@ export type Conexion = {
   ultima_sincronizacion: string | null;
 };
 
+export type EstadoTaxFree = "pendiente" | "validada" | "enviada" | "recibida" | "rechazada";
+
+// Una compra hecha como turista que da derecho a pedir de vuelta el IVA
+export type CompraTaxFree = {
+  id: string;
+  fecha: string;
+  tienda: string;
+  pais: string; // código de país (FR, ES, DE...)
+  moneda: string;
+  total: number; // lo que pagó, con IVA incluido, en la moneda del país
+  iva: number; // el IVA que trae la compra
+  operador: string; // Global Blue, Planet, la tienda misma...
+  estado: EstadoTaxFree;
+  recibido: number | null; // lo que de verdad le devolvieron
+  movimiento_id: string | null; // el ingreso que se registró al recibir la devolución
+};
+
+export const ESTADOS_TAX_FREE: { valor: EstadoTaxFree; nombre: string }[] = [
+  { valor: "pendiente", nombre: "Por validar en aduana" },
+  { valor: "validada", nombre: "Validada" },
+  { valor: "enviada", nombre: "Enviada" },
+  { valor: "recibida", nombre: "Recibida" },
+  { valor: "rechazada", nombre: "Rechazada" },
+];
+
 export type Datos = {
   cuentas: Cuenta[];
   movimientos: Movimiento[];
@@ -108,6 +133,7 @@ export type Datos = {
   presupuesto: Presupuesto[];
   por_cobrar: PorCobrar[];
   conexiones: Conexion[];
+  compras_tax_free: CompraTaxFree[];
 };
 
 export type Coleccion = keyof Datos;
@@ -121,6 +147,7 @@ export const datosVacios = (): Datos => ({
   presupuesto: [],
   por_cobrar: [],
   conexiones: [],
+  compras_tax_free: [],
 });
 
 export const CATEGORIAS = {

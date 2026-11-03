@@ -6,7 +6,7 @@ import { cop, fechaCorta, mesActual, nombreMes, porcentaje, proximoPago } from "
 import Ciudad from "./Ciudad";
 import { FormularioCuenta, ListaCuentas } from "./Cuentas";
 import { useFinanzas } from "./Contexto";
-import { Avance, Boton, SelectorMes, Subtitulo } from "./Ui";
+import { Avance, Boton, Icono, SelectorMes, Subtitulo } from "./Ui";
 import { useState } from "react";
 
 const enlace = "text-sm font-semibold underline decoration-cielo decoration-2 hover:decoration-naranja";
@@ -97,6 +97,14 @@ export default function Inicio() {
         )}
         {agregarCuenta && <FormularioCuenta onCerrar={() => setAgregarCuenta(false)} />}
       </section>
+
+      <Link href="/finanzas/tax-free" className="tactil -mt-6 flex items-center justify-between gap-4 rounded-2xl border border-linea px-5 py-4 hover:border-tinta-suave md:hidden">
+        <span>
+          <span className="block font-medium">Tax free</span>
+          <span className="block text-sm text-tinta-suave">Lo que te devuelven de las compras en el exterior</span>
+        </span>
+        <Icono d="M9 18l6-6-6-6" className="size-5 shrink-0 text-tinta-suave" />
+      </Link>
 
       <div className="grid gap-12 md:grid-cols-[1.25fr_1fr] md:gap-14">
         <section aria-labelledby="titulo-gastos">

@@ -221,11 +221,13 @@ export function progresoDeudas(deudas: Deuda[], pagos: PagoDeuda[]) {
   return { total, saldo, proporcion: total > 0 ? (total - saldo) / total : 0 };
 }
 
-// Saldo de una cuenta en su propia moneda: lo que tenía al agregarla, más lo que entró, menos lo que salió
+// Saldo de una cuenta en su propia moneda: lo que tenía al agregarla, más lo que entró, menos lo que salió.
+// En una tarjeta de crédito es al revés: es lo que se debe, y cada compra lo sube y cada pago lo baja.
 export function saldoCuenta(datos: Datos, cuentaId: string) {
   const cuenta = datos.cuentas.find((c) => c.id === cuentaId);
   if (!cuenta) return 0;
+  const signo = cuenta.tipo === "credito" ? -1 : 1;
   return datos.movimientos
     .filter((m) => m.cuenta_id === cuentaId)
-    .reduce((s, m) => s + (m.tipo === "ingreso" ? m.monto : -m.monto), cuenta.saldo_inicial);
+    .reduce((s, m) => s + signo * (m.tipo === "ingreso" ? m.monto : -m.monto), cuenta.saldo_inicial);
 }

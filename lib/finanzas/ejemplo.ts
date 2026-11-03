@@ -58,6 +58,7 @@ export function datosEjemplo(): Datos {
     ],
     por_cobrar: [],
     compras_tax_free: [],
+    llaves_wallet: [],
     conexiones: [],
   };
 }

@@ -5,6 +5,7 @@ import { desglosarPago, enPesos } from "@/lib/finanzas/calculos";
 import { datosEjemplo } from "@/lib/finanzas/ejemplo";
 import { mesActual, nuevoId } from "@/lib/finanzas/formato";
 import { obtenerBackend, type Backend, type Usuario } from "@/lib/finanzas/repositorio";
+import { obtenerTasas } from "@/lib/finanzas/tasas";
 import { datosVacios, type Coleccion, type Datos, type Movimiento, type PagoDeuda } from "@/lib/finanzas/tipos";
 
 type Aviso = { id: number; texto: string; deshacer?: () => void };
@@ -190,6 +191,16 @@ export function ProveedorFinanzas({ children }: { children: ReactNode }) {
     document.addEventListener("visibilitychange", alCambiar);
     return () => document.removeEventListener("visibilitychange", alCambiar);
   }, [usuario, backend, salir, avisar]);
+
+  // Lo que manda el Wallet en otra moneda llega sin tasa (la base no la conoce): se completa con la del día
+  useEffect(() => {
+    const sinTasa = datos.movimientos.filter((m) => m.origen === "wallet" && m.moneda !== "COP" && Number(m.tasa) === 1);
+    if (!usuario || !sinTasa.length) return;
+    obtenerTasas().then((tasas) => {
+      const conTasa = sinTasa.flatMap((m) => (tasas?.pesosPor[m.moneda] ? [{ ...m, tasa: tasas.pesosPor[m.moneda] }] : []));
+      if (conTasa.length) guardar("movimientos", conTasa);
+    });
+  }, [usuario, datos.movimientos, guardar]);
 
   const cargarEjemplo = useCallback(() => {
     const ejemplo = datosEjemplo();

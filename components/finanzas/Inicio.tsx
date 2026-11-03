@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { cargaDeuda, gastosPorCategoria, progresoDeudas, resumenMes, saldoActual } from "@/lib/finanzas/calculos";
 import { cop, fechaCorta, mesActual, nombreMes, porcentaje, proximoPago } from "@/lib/finanzas/formato";
+import { POR_REVISAR } from "@/lib/finanzas/tipos";
 import Ciudad from "./Ciudad";
 import { FormularioCuenta, ListaCuentas } from "./Cuentas";
 import { useFinanzas } from "./Contexto";
@@ -41,6 +42,7 @@ export default function Inicio() {
   const avance = progresoDeudas(datos.deudas, datos.pagos_deuda);
   const base = Math.max(r.ingresos, r.gastos + r.pagos + r.ahorro, 1);
   const esteMes = mes === mesActual();
+  const porRevisar = datos.movimientos.filter((m) => m.categoria === POR_REVISAR).length;
 
   const proximos = datos.deudas
     .filter((d) => d.dia_pago && saldoActual(d, datos.pagos_deuda) > 0)
@@ -97,6 +99,16 @@ export default function Inicio() {
         )}
         {agregarCuenta && <FormularioCuenta onCerrar={() => setAgregarCuenta(false)} />}
       </section>
+
+      {porRevisar > 0 && (
+        <Link href="/finanzas/movimientos" className="tactil -mt-6 flex items-center justify-between gap-4 rounded-2xl bg-cielo/35 px-5 py-4 dark:bg-cielo/10">
+          <span>
+            <span className="block font-medium">{porRevisar === 1 ? "1 compra llegó del Wallet" : `${porRevisar} compras llegaron del Wallet`}</span>
+            <span className="block text-sm text-tinta-suave">Ponles categoría para que cuenten bien</span>
+          </span>
+          <Icono d="M9 18l6-6-6-6" className="size-5 shrink-0 text-tinta-suave" />
+        </Link>
+      )}
 
       <Link href="/finanzas/tax-free" className="tactil -mt-6 flex items-center justify-between gap-4 rounded-2xl border border-linea px-5 py-4 hover:border-tinta-suave md:hidden">
         <span>

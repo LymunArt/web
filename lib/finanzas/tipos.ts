@@ -3,9 +3,9 @@
 
 export type TipoMovimiento = "ingreso" | "gasto" | "pago_deuda";
 export type MedioPago = "efectivo" | "débito" | "transferencia" | "Nequi" | "Nu" | "Daviplata" | "tarjeta";
-export type OrigenMovimiento = "manual" | "extracto" | "nequi" | "nu";
+export type OrigenMovimiento = "manual" | "extracto" | "nequi" | "nu" | "wallet";
 export type EstadoProyecto = "idea" | "en_curso" | "pausado" | "terminado";
-export type TipoCuenta = "ahorros" | "corriente" | "billetera" | "tarjeta" | "efectivo" | "inversion";
+export type TipoCuenta = "ahorros" | "corriente" | "billetera" | "tarjeta" | "credito" | "efectivo" | "inversion";
 
 // Una cuenta de cualquier banco o billetera, en su propia moneda (COP, USD, EUR...)
 export type Cuenta = {
@@ -14,8 +14,22 @@ export type Cuenta = {
   entidad: string;
   tipo: TipoCuenta;
   moneda: string; // código ISO 4217
-  saldo_inicial: number; // en la moneda de la cuenta
+  // En la moneda de la cuenta. En una tarjeta de crédito es lo que se debe al agregarla.
+  saldo_inicial: number;
   archivada: boolean;
+  // Solo tarjetas de crédito
+  cupo?: number | null;
+  dia_corte?: number | null;
+  dia_pago?: number | null;
+};
+
+// Permiso para que el Wallet del iPhone registre las compras de una cuenta. Solo se guarda la huella de la llave.
+export type LlaveWallet = {
+  id: string;
+  cuenta_id: string;
+  llave_hash: string;
+  creada_en: string;
+  ultimo_uso: string | null;
 };
 
 export type Movimiento = {
@@ -134,6 +148,7 @@ export type Datos = {
   por_cobrar: PorCobrar[];
   conexiones: Conexion[];
   compras_tax_free: CompraTaxFree[];
+  llaves_wallet: LlaveWallet[];
 };
 
 export type Coleccion = keyof Datos;
@@ -148,6 +163,7 @@ export const datosVacios = (): Datos => ({
   por_cobrar: [],
   conexiones: [],
   compras_tax_free: [],
+  llaves_wallet: [],
 });
 
 export const CATEGORIAS = {
@@ -168,6 +184,8 @@ export const CATEGORIAS = {
 export const AHORRO_EMERGENCIA = "Ahorro de emergencia";
 export const APORTE_PROYECTO = "Aporte a proyecto";
 export const PAGO_DEUDA = "Pago de deuda";
+// Las compras que llegan solas (Wallet) quedan aquí hasta que la persona les pone categoría
+export const POR_REVISAR = "Por revisar";
 
 export const MEDIOS_PAGO: MedioPago[] = ["Nequi", "Nu", "efectivo", "débito", "transferencia", "Daviplata", "tarjeta"];
 
@@ -182,7 +200,8 @@ export const TIPOS_CUENTA: { valor: TipoCuenta; nombre: string }[] = [
   { valor: "ahorros", nombre: "Ahorros" },
   { valor: "corriente", nombre: "Corriente" },
   { valor: "billetera", nombre: "Billetera digital" },
-  { valor: "tarjeta", nombre: "Tarjeta" },
+  { valor: "tarjeta", nombre: "Tarjeta débito o prepago" },
+  { valor: "credito", nombre: "Tarjeta de crédito" },
   { valor: "efectivo", nombre: "Efectivo" },
   { valor: "inversion", nombre: "Inversión" },
 ];

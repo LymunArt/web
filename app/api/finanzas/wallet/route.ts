@@ -23,7 +23,7 @@ async function registrar(request: NextRequest) {
   if (r.ok) return responder(prueba ? "La llave funciona." : "Compra registrada en LymunArt Finanzas.", 200);
   const error = (await r.json().catch(() => null)) as { code?: string } | null;
   if (error?.code === "28000") return responder("Esa llave no existe o fue desconectada. Crea una nueva en la app.", 401);
-  if (error?.code === "22023") return responder("No llegó el valor de la compra. Revisa que el enlace tenga la variable Importe.", 400);
+  if (error?.code === "22023") return responder("La llave funciona, pero no llegó el valor de la compra. Si lo probaste con el botón de ejecutar, es normal: llegará solo con una compra con Apple Pay. Si no, revisa que el enlace tenga la variable Cantidad.", 400);
   return responder("No pudimos registrar la compra. Inténtalo más tarde.", 502);
 }
 

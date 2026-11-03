@@ -351,7 +351,138 @@ a {
   }
 }
 
+/* App de finanzas */
+.cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barras translúcidas: el contenido pasa por debajo */
+.capa {
+  background: color-mix(in srgb, var(--fondo) 78%, transparent);
+  backdrop-filter: blur(24px) saturate(1.5);
+}
+
+/* Presionar responde al instante, no al soltar */
+.tactil {
+  transition: scale 200ms var(--salida), background-color 150ms ease, border-color 150ms ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tactil:active {
+  scale: 0.97;
+  transition-duration: 100ms;
+}
+
+/* Hoja que sube desde abajo y vuelve por el mismo camino. Se puede agarrar en cualquier momento:
+   al arrastrar, --y sigue al dedo y la transición retoma desde el valor actual. */
+.hoja {
+  position: fixed;
+  inset: auto 0 0 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 34rem;
+  max-height: 92dvh;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--tinta);
+  background: var(--superficie);
+  border-radius: 20px 20px 0 0;
+  transform: translateY(var(--y, 0));
+  transition: transform 460ms var(--salida), overlay 460ms allow-discrete, display 460ms allow-discrete;
+}
+
+@starting-style {
+  .hoja[open] {
+    transform: translateY(100%);
+  }
+}
+
+.hoja[data-cerrando] {
+  transform: translateY(100%);
+  transition-duration: 300ms;
+}
+
+.hoja[data-arrastrando] {
+  transition: none;
+}
+
+.hoja::backdrop {
+  background: rgb(30 27 46 / 0.45);
+  transition: opacity 400ms var(--salida);
+}
+
+.hoja[data-cerrando]::backdrop {
+  opacity: 0;
+}
+
+@starting-style {
+  .hoja[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* La ciudad del logo se llena a medida que pagas */
+.ciudad-relleno {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transition: scale 1400ms var(--salida);
+}
+
+@starting-style {
+  .ciudad-relleno {
+    scale: 1 0;
+  }
+}
+
+.barra-avance {
+  transform-origin: left center;
+  transition: scale 700ms var(--salida);
+}
+
+@starting-style {
+  .barra-avance {
+    scale: 0 1;
+  }
+}
+
+/* El aviso de deshacer sube y baja por el mismo camino */
+.aviso {
+  transition: translate 400ms var(--salida), opacity 300ms ease;
+}
+
+@starting-style {
+  .aviso {
+    translate: 0 1rem;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .capa {
+    background: var(--fondo);
+    backdrop-filter: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .hoja,
+  .hoja[data-cerrando] {
+    transform: none;
+    transition: opacity 200ms ease;
+  }
+
+  .hoja[data-cerrando] {
+    opacity: 0;
+  }
+
+  .ciudad-relleno,
+  .barra-avance,
+  .aviso {
+    transition: none;
+  }
+
   [data-revelar] {
     transition: opacity 400ms ease;
   }

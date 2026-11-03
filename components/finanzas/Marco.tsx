@@ -8,7 +8,7 @@ import BotonTema from "@/components/BotonTema";
 import { dispositivoAdmiteHuella, ErrorDeCuenta } from "@/lib/finanzas/repositorio";
 import { ProveedorFinanzas, useFinanzas } from "./Contexto";
 import Registrar from "./Registrar";
-import { Boton, Campo, Icono, Segmentado } from "./Ui";
+import { Boton, Campo, Hoja, Icono, Segmentado } from "./Ui";
 
 const SECCIONES = [
   { href: "/finanzas", nombre: "Inicio", icono: "M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6" },
@@ -19,6 +19,10 @@ const SECCIONES = [
 ];
 const CUENTAS = { href: "/finanzas/cuentas", nombre: "Cuentas", icono: "M3 7h18v12H3zM3 11h18M7 15h3" };
 const TAX_FREE = { href: "/finanzas/tax-free", nombre: "Tax free", icono: "M3 10l9-6 9 6M5 10v9h14v-9M9 19v-5h6v5M12 7.5v.01" };
+const MAS_ICONO = "M5 12h.01M12 12h.01M19 12h.01";
+
+// En el celular caben cinco botones abajo: los de todos los días, y "Más" para el resto
+const porHref = (href: string) => SECCIONES.find((s) => s.href === href)!;
 const CONEXIONES = { href: "/finanzas/conexiones", nombre: "Conexiones", icono: "M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1" };
 
 function Marca() {
@@ -192,6 +196,9 @@ function EnlaceLateral({ s, actual }: { s: { href: string; nombre: string; icono
 function Aplicacion({ children }: { children: ReactNode }) {
   const { usuario, cargando, backend, salir, abrirRegistro, registro, aviso, cerrarAviso } = useFinanzas();
   const ruta = usePathname();
+  const [mas, setMas] = useState(false);
+  const MAS = [porHref("/finanzas/presupuesto"), porHref("/finanzas/proyectos"), TAX_FREE, CONEXIONES];
+  const enMas = MAS.some((s) => s.href === ruta);
 
   if (cargando) {
     return <p role="status" className="flex min-h-dvh items-center justify-center text-tinta-suave">Abriendo tus finanzas…</p>;
@@ -230,9 +237,6 @@ function Aplicacion({ children }: { children: ReactNode }) {
       <header className="capa sticky top-0 z-20 flex h-16 items-center justify-between gap-2 px-4 md:hidden">
         <Marca />
         <div className="flex gap-2">
-          <Link href={CONEXIONES.href} aria-label={CONEXIONES.nombre} aria-current={ruta === CONEXIONES.href ? "page" : undefined} className="tactil flex size-10 items-center justify-center rounded-lg border border-linea text-tinta-suave aria-[current]:bg-cielo/45 aria-[current]:text-tinta">
-            <Icono d={CONEXIONES.icono} />
-          </Link>
           <BotonTema />
           {botonSalir}
         </div>
@@ -260,7 +264,7 @@ function Aplicacion({ children }: { children: ReactNode }) {
       </button>
 
       <nav aria-label="Secciones" className="capa fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-linea pb-[env(safe-area-inset-bottom)] md:hidden">
-        {SECCIONES.map((s) => {
+        {[porHref("/finanzas"), porHref("/finanzas/movimientos"), CUENTAS, porHref("/finanzas/deudas")].map((s) => {
           const actual = ruta === s.href;
           return (
             <Link key={s.href} href={s.href} aria-current={actual ? "page" : undefined} className={`tactil flex h-16 min-w-0 flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium ${actual ? "text-tinta" : "text-tinta-suave"}`}>
@@ -269,7 +273,36 @@ function Aplicacion({ children }: { children: ReactNode }) {
             </Link>
           );
         })}
+        <button
+          type="button"
+          onClick={() => setMas(true)}
+          aria-haspopup="dialog"
+          className={`tactil flex h-16 min-w-0 flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium ${enMas ? "text-tinta" : "text-tinta-suave"}`}
+        >
+          <span className={`flex h-7 w-12 items-center justify-center rounded-full ${enMas ? "bg-cielo/60 dark:bg-cielo/20" : ""}`}><Icono d={MAS_ICONO} className="size-6" /></span>
+          <span>Más</span>
+        </button>
       </nav>
+
+      {mas && (
+        <Hoja titulo="Más" onCerrar={() => setMas(false)}>
+          {(cerrar) => (
+            <nav aria-label="Más secciones">
+              <ul className="flex flex-col divide-y divide-linea">
+                {MAS.map((s) => (
+                  <li key={s.href}>
+                    <Link href={s.href} onClick={cerrar} aria-current={ruta === s.href ? "page" : undefined} className="tactil flex min-h-14 items-center gap-3 py-2">
+                      <span className="flex size-10 items-center justify-center rounded-xl bg-cielo/45 dark:bg-cielo/15"><Icono d={s.icono} /></span>
+                      <span className="flex-1 font-medium">{s.nombre}</span>
+                      <Icono d="M9 18l6-6-6-6" className="size-5 text-tinta-suave" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+        </Hoja>
+      )}
 
       {registro && <Registrar key={registro.inicial?.id ?? "nuevo"} />}
 

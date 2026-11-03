@@ -1,23 +1,26 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
-import { aMovimientos, leerExtracto, PROVEEDORES, sugerirCategoria, type ResultadoExtracto } from "@/lib/finanzas/conexiones";
+import Link from "next/link";
+import { medioDeCuenta } from "@/lib/finanzas/calculos";
+import { aMovimientos, leerExtracto, sugerirCategoria, type ResultadoExtracto } from "@/lib/finanzas/conexiones";
 import { cop, fechaCorta } from "@/lib/finanzas/formato";
-import type { MedioPago, Movimiento } from "@/lib/finanzas/tipos";
+import type { Movimiento } from "@/lib/finanzas/tipos";
 import { obtenerTasas } from "@/lib/finanzas/tasas";
 import { useFinanzas } from "./Contexto";
-import { Boton, Campo, Segmentado, Selector, Titulo } from "./Ui";
+import { Boton, Campo, Icono, Selector, Titulo } from "./Ui";
 
 type Revision = { nuevos: Movimiento[]; repetidos: number; descartadas: number };
 
 export default function Conexiones() {
   const { datos, guardar, borrar, avisar } = useFinanzas();
-  const [medio, setMedio] = useState<MedioPago>("Nequi");
   const [revision, setRevision] = useState<Revision | null>(null);
   const [problema, setProblema] = useState<string | null>(null);
   const [leyendo, setLeyendo] = useState(false);
   const cuentasActivas = datos.cuentas.filter((c) => !c.archivada);
-  const [cuentaId, setCuentaId] = useState("");
+  const [cuentaId, setCuentaId] = useState(cuentasActivas.find((c) => c.tipo !== "efectivo")?.id ?? "");
+  // Cada persona ve solo los bancos y billeteras que tiene en sus cuentas
+  const entidades = [...new Set(cuentasActivas.filter((c) => c.tipo !== "efectivo").map((c) => c.entidad))];
   // Un PDF con clave queda esperando aquí hasta que la escribas
   const [conClave, setConClave] = useState<File | null>(null);
   const [clave, setClave] = useState("");
@@ -55,7 +58,7 @@ export default function Conexiones() {
       if (!hoyTasa) return setProblema("No pudimos traer la tasa de hoy para convertir a pesos. Revisa tu internet e inténtalo otra vez.");
       tasa = hoyTasa;
     }
-    const { nuevos, repetidos } = aMovimientos(r.filas, datos.movimientos, "extracto", medio, cuenta, tasa);
+    const { nuevos, repetidos } = aMovimientos(r.filas, datos.movimientos, "extracto", cuenta ? medioDeCuenta(cuenta) : "transferencia", cuenta, tasa);
     setRevision({ nuevos, repetidos, descartadas: r.descartadas });
   }
 
@@ -93,32 +96,48 @@ export default function Conexiones() {
       <Titulo>Conexiones</Titulo>
       <div className="flex flex-col gap-14">
         <section aria-labelledby="titulo-entidades">
-          <h2 id="titulo-entidades" className="mb-2 font-titulo text-xl font-semibold tracking-[-0.015em]">Nequi y Nu</h2>
+          <h2 id="titulo-entidades" className="mb-2 font-titulo text-xl font-semibold tracking-[-0.015em]">Tus bancos y billeteras</h2>
           <p className="mb-5 max-w-2xl text-tinta-suave">
-            Cuando se activen, tus ingresos, gastos y pagos llegarán solos. Tú das el permiso desde la entidad y lo puedes quitar cuando quieras. Nunca te pediremos la clave de tu cuenta.
+            Cuando se pueda conectar, tus ingresos, gastos y pagos llegarán solos. Tú das el permiso desde tu banco y lo quitas cuando quieras. Nunca te pediremos la clave de tu cuenta.
           </p>
-          <ul className="flex flex-col divide-y divide-linea border-y border-linea">
-            {PROVEEDORES.map((p) => (
-              <li key={p.id} className="flex flex-col gap-1.5 py-4">
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="font-titulo text-lg font-semibold tracking-[-0.015em]">{p.nombre}</h3>
-                  <span className="rounded-full border border-cielo px-3 py-1 text-xs font-semibold">Próximamente</span>
-                </div>
-                <p className="max-w-2xl text-sm text-tinta-suave">{p.nota}</p>
-              </li>
-            ))}
-          </ul>
+          {entidades.length === 0 ? (
+            <p className="max-w-2xl text-tinta-suave">
+              Agrega tus cuentas y aquí aparecerán tus bancos.{" "}
+              <Link href="/finanzas/cuentas" className="font-semibold text-tinta underline decoration-cielo decoration-2 underline-offset-4">Ir a Cuentas</Link>
+            </p>
+          ) : (
+            <ul className="flex flex-col divide-y divide-linea border-y border-linea">
+              {entidades.map((entidad) => (
+                <li key={entidad} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4">
+                  <div className="min-w-0 max-w-xl">
+                    <h3 className="font-titulo text-lg font-semibold tracking-[-0.015em]">{entidad}</h3>
+                    <p id={`nota-${entidad}`} className="text-sm text-tinta-suave">
+                      Estará listo cuando {entidad} comparta tus movimientos, con tu permiso, por las finanzas abiertas que está organizando la Superfinanciera.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled
+                    aria-describedby={`nota-${entidad}`}
+                    className="inline-flex min-h-11 shrink-0 cursor-not-allowed items-center gap-2 rounded-xl border border-linea px-4 text-sm font-semibold text-tinta-suave"
+                  >
+                    <Icono d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1" className="size-4" />
+                    Conectar
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section aria-labelledby="titulo-extracto">
           <h2 id="titulo-extracto" className="mb-2 font-titulo text-xl font-semibold tracking-[-0.015em]">Mientras tanto, sube tu extracto</h2>
           <p className="mb-5 max-w-2xl text-tinta-suave">
-            El PDF que descargas de Nequi o de Nu, o un CSV. Lo revisas antes de guardar, y lo que ya esté registrado no se repite. El archivo se lee en tu dispositivo y no se sube a ningún lado.
+            El PDF que descargas de tu banco o billetera, o un CSV. Lo revisas antes de guardar, y lo que ya esté registrado no se repite. El archivo se lee en tu dispositivo y no se sube a ningún lado.
           </p>
           <div className="flex max-w-md flex-col gap-4">
-            <Segmentado etiqueta="¿De dónde es el extracto?" opciones={[{ valor: "Nequi" as MedioPago, nombre: "Nequi" }, { valor: "Nu" as MedioPago, nombre: "Nu" }]} valor={medio} onCambio={setMedio} />
             {cuentasActivas.length > 0 && (
-              <Selector etiqueta="¿A qué cuenta van?" value={cuentaId} onChange={(e) => setCuentaId(e.target.value)}>
+              <Selector etiqueta="¿De qué cuenta es el extracto?" value={cuentaId} onChange={(e) => setCuentaId(e.target.value)}>
                 <option value="">Sin cuenta (en pesos)</option>
                 {cuentasActivas.map((c) => <option key={c.id} value={c.id}>{c.nombre} · {c.moneda}</option>)}
               </Selector>

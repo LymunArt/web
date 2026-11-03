@@ -1,4 +1,4 @@
-import { AHORRO_EMERGENCIA, APORTE_PROYECTO, type Datos, type Deuda, type Movimiento, type PagoDeuda } from "./tipos";
+import { AHORRO_EMERGENCIA, APORTE_PROYECTO, type Datos, type Deuda, type Movimiento, type PagoDeuda, MEDIOS_PAGO, type Cuenta, type MedioPago } from "./tipos";
 
 const redondear = (n: number) => Math.round(n);
 
@@ -230,4 +230,13 @@ export function saldoCuenta(datos: Datos, cuentaId: string) {
   return datos.movimientos
     .filter((m) => m.cuenta_id === cuentaId)
     .reduce((s, m) => s + signo * (m.tipo === "ingreso" ? m.monto : -m.monto), cuenta.saldo_inicial);
+}
+
+// Si el movimiento sale de una cuenta, el medio de pago se deduce de ella: no hay que preguntarlo
+export function medioDeCuenta(cuenta: Cuenta): MedioPago {
+  const porNombre = MEDIOS_PAGO.find((m) => m.toLowerCase() === cuenta.entidad.trim().toLowerCase());
+  if (porNombre) return porNombre;
+  if (cuenta.tipo === "efectivo") return "efectivo";
+  if (cuenta.tipo === "tarjeta" || cuenta.tipo === "credito") return "tarjeta";
+  return "débito";
 }

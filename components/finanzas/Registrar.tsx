@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { desglosarPago } from "@/lib/finanzas/calculos";
+import { desglosarPago, medioDeCuenta } from "@/lib/finanzas/calculos";
 import { cop, hoy, nuevoId } from "@/lib/finanzas/formato";
 import { obtenerTasas, type Tasas } from "@/lib/finanzas/tasas";
-import { AHORRO_EMERGENCIA, APORTE_PROYECTO, CATEGORIAS, MEDIOS_PAGO, PAGO_DEUDA, POR_REVISAR, type Cuenta, type MedioPago, type Movimiento, type TipoMovimiento } from "@/lib/finanzas/tipos";
+import { AHORRO_EMERGENCIA, APORTE_PROYECTO, CATEGORIAS, MEDIOS_PAGO, PAGO_DEUDA, POR_REVISAR, type MedioPago, type Movimiento, type TipoMovimiento } from "@/lib/finanzas/tipos";
 import { useFinanzas } from "./Contexto";
 import { Boton, CampoMonto, Campo, Hoja, Pildoras, Segmentado, Selector } from "./Ui";
 
@@ -17,14 +17,6 @@ const TIPOS: { valor: TipoMovimiento; nombre: string }[] = [
 
 const OTRA_CATEGORIA = "Otra…";
 
-// Si el movimiento sale de una cuenta, el medio de pago se deduce de ella: no hay que preguntarlo
-function medioDeCuenta(cuenta: Cuenta): MedioPago {
-  const porNombre = MEDIOS_PAGO.find((m) => m.toLowerCase() === cuenta.entidad.trim().toLowerCase());
-  if (porNombre) return porNombre;
-  if (cuenta.tipo === "efectivo") return "efectivo";
-  if (cuenta.tipo === "tarjeta" || cuenta.tipo === "credito") return "tarjeta";
-  return "débito";
-}
 
 // Registrar en segundos, como en Treinta: el valor primero, un toque para la categoría y listo.
 export default function Registrar() {

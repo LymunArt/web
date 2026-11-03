@@ -1,7 +1,7 @@
 // Modelo de datos de la app de finanzas. Los nombres de los campos coinciden con las columnas
 // de supabase/migrations, así el mismo objeto sirve para el modo de prueba y para la nube.
 
-export type TipoMovimiento = "ingreso" | "gasto" | "pago_deuda";
+export type TipoMovimiento = "ingreso" | "gasto" | "pago_deuda" | "transferencia";
 export type MedioPago = "efectivo" | "débito" | "transferencia" | "Nequi" | "Nu" | "Daviplata" | "tarjeta";
 export type OrigenMovimiento = "manual" | "extracto" | "nequi" | "nu" | "wallet";
 export type EstadoProyecto = "idea" | "en_curso" | "pausado" | "terminado";
@@ -43,6 +43,8 @@ export type Movimiento = {
   // Pesos colombianos por unidad de la moneda, el día que se registró. Así el historial no cambia con el dólar.
   tasa: number;
   cuenta_id: string | null;
+  // Solo en transferencias: la cuenta a la que llega la plata (la de origen es cuenta_id)
+  cuenta_destino_id?: string | null;
   medio_pago: MedioPago;
   deuda_id: string | null;
   proyecto_id: string | null;
@@ -187,6 +189,8 @@ export const APORTE_PROYECTO = "Aporte a proyecto";
 export const PAGO_DEUDA = "Pago de deuda";
 // Las compras que llegan solas (Wallet) quedan aquí hasta que la persona les pone categoría
 export const POR_REVISAR = "Por revisar";
+export const PAGO_TARJETA = "Pago de tarjeta";
+export const ENTRE_CUENTAS = "Entre mis cuentas";
 
 export const MEDIOS_PAGO: MedioPago[] = ["Nequi", "Nu", "efectivo", "débito", "transferencia", "Daviplata", "tarjeta"];
 

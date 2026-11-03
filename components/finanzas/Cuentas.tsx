@@ -6,7 +6,7 @@ import { cop, dinero, nuevoId, proximoPago } from "@/lib/finanzas/formato";
 import { obtenerTasas, type Tasas } from "@/lib/finanzas/tasas";
 import { MONEDAS, TIPOS_CUENTA, type Cuenta, type TipoCuenta } from "@/lib/finanzas/tipos";
 import { useFinanzas } from "./Contexto";
-import { Boton, Campo, CampoMonto, Hoja, Icono, Selector, Titulo, Vacio } from "./Ui";
+import { Boton, Campo, CampoMonto, Hoja, Icono, Pildoras, Selector, Titulo, Vacio } from "./Ui";
 import Wallet from "./Wallet";
 
 export function useTasas() {
@@ -133,11 +133,26 @@ export function ListaCuentas({ compacta = false }: { compacta?: boolean }) {
   );
 }
 
+// Las entidades más comunes en Colombia para cada tipo: un toque en vez de escribir
+const ENTIDADES: Record<TipoCuenta, string[]> = {
+  billetera: ["Nequi", "Daviplata", "RappiPay", "Dale!", "Movii"],
+  ahorros: ["Bancolombia", "Davivienda", "Nu", "BBVA", "Banco de Bogotá", "Lulo Bank", "Caja Social"],
+  corriente: ["Bancolombia", "Davivienda", "BBVA", "Banco de Bogotá", "Caja Social"],
+  tarjeta: ["ARQ", "Nu", "Global66", "Wise", "Bancolombia"],
+  credito: ["Nu", "Bancolombia", "Davivienda", "BBVA", "Falabella", "RappiCard"],
+  efectivo: [],
+  inversion: ["Trii", "Tyba", "Bancolombia", "Davivienda"],
+};
+const OTRA = "Otra";
+
 export function FormularioCuenta({ cuenta, onCerrar }: { cuenta?: Cuenta; onCerrar: () => void }) {
   const { datos, guardar, avisar } = useFinanzas();
-  const [nombre, setNombre] = useState(cuenta?.nombre ?? "");
+  const [tipo, setTipo] = useState<TipoCuenta>(cuenta?.tipo ?? "billetera");
   const [entidad, setEntidad] = useState(cuenta?.entidad ?? "");
-  const [tipo, setTipo] = useState<TipoCuenta>(cuenta?.tipo ?? "ahorros");
+  const conocida = (e: string, t: TipoCuenta) => ENTIDADES[t].includes(e);
+  const [otra, setOtra] = useState(!!cuenta && !conocida(cuenta.entidad, cuenta.tipo) && cuenta.tipo !== "efectivo");
+  // El apodo solo hace falta si tiene dos cuentas del mismo banco; si es igual a la entidad, no se muestra
+  const [apodo, setApodo] = useState(cuenta && cuenta.nombre !== cuenta.entidad ? cuenta.nombre : "");
   const [moneda, setMoneda] = useState(cuenta?.moneda ?? "COP");
   const [saldo, setSaldo] = useState(Number(cuenta?.saldo_inicial ?? 0));
   const [cupo, setCupo] = useState(Number(cuenta?.cupo ?? 0));
@@ -149,14 +164,14 @@ export function FormularioCuenta({ cuenta, onCerrar }: { cuenta?: Cuenta; onCerr
   const credito = tipo === "credito";
 
   function enviar(cerrar: () => void) {
-    if (!nombre.trim()) return setError("Ponle un nombre para reconocerla, por ejemplo \"Mi Nequi\".");
-    if (!entidad.trim()) return setError("Escribe el banco o la billetera.");
+    const entidadFinal = tipo === "efectivo" ? "Efectivo" : entidad.trim();
+    if (!entidadFinal) return setError(otra ? "Escribe el nombre del banco o la billetera." : "Elige de qué banco o billetera es.");
     const dia = (t: string) => (t ? Math.min(31, Math.max(1, Number(t))) : null);
     guardar("cuentas", [
       {
         id: cuenta?.id ?? nuevoId(),
-        nombre: nombre.trim(),
-        entidad: entidad.trim(),
+        nombre: apodo.trim() || entidadFinal,
+        entidad: entidadFinal,
         tipo,
         moneda,
         saldo_inicial: saldo,
@@ -173,11 +188,39 @@ export function FormularioCuenta({ cuenta, onCerrar }: { cuenta?: Cuenta; onCerr
     <Hoja titulo={cuenta ? "Editar cuenta" : "Agregar cuenta"} onCerrar={onCerrar}>
       {(cerrar) => (
         <form noValidate className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); enviar(cerrar); }}>
-          <Selector etiqueta="¿Qué es?" value={tipo} onChange={(e) => setTipo(e.target.value as TipoCuenta)}>
+          <Selector
+            etiqueta="¿Qué es?"
+            value={tipo}
+            onChange={(e) => {
+              const nuevo = e.target.value as TipoCuenta;
+              setTipo(nuevo);
+              if (!otra && !conocida(entidad, nuevo)) setEntidad("");
+            }}
+          >
             {TIPOS_CUENTA.map((t) => <option key={t.valor} value={t.valor}>{t.nombre}</option>)}
           </Selector>
-          <Campo etiqueta="Nombre" placeholder={credito ? "Ej.: Visa Bancolombia" : "Ej.: Mi Nequi"} value={nombre} onChange={(e) => setNombre(e.target.value)} />
-          <Campo etiqueta="Banco o billetera" placeholder="Ej.: Nequi, Nu, Bancolombia, ARQ" value={entidad} onChange={(e) => setEntidad(e.target.value)} />
+          {tipo !== "efectivo" && (
+            <>
+              <Pildoras
+                etiqueta="¿De cuál?"
+                opciones={[...ENTIDADES[tipo], OTRA]}
+                valor={otra ? OTRA : entidad}
+                onCambio={(v) => {
+                  setOtra(v === OTRA);
+                  setEntidad(v === OTRA ? "" : v);
+                }}
+              />
+              {otra && <Campo etiqueta="¿Cuál?" autoComplete="off" placeholder="Ej.: Banco Popular" value={entidad} onChange={(e) => setEntidad(e.target.value)} />}
+            </>
+          )}
+          <Campo
+            etiqueta="Apodo (opcional)"
+            autoComplete="off"
+            placeholder={credito ? "Ej.: Tarjeta de compras" : "Ej.: Ahorros nómina"}
+            ayuda="Solo si tienes dos del mismo banco. Si lo dejas vacío, se llama como el banco."
+            value={apodo}
+            onChange={(e) => setApodo(e.target.value)}
+          />
           <Selector etiqueta="Moneda" value={moneda} disabled={tieneMovimientos} onChange={(e) => setMoneda(e.target.value)}>
             {MONEDAS.map((m) => <option key={m.codigo} value={m.codigo}>{m.nombre} ({m.codigo})</option>)}
           </Selector>

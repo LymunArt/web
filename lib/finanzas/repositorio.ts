@@ -135,7 +135,7 @@ export const backendPrueba: Backend = {
   },
 };
 
-const COLECCIONES: Coleccion[] = ["cuentas", "movimientos", "deudas", "pagos_deuda", "proyectos", "presupuesto", "por_cobrar", "conexiones"];
+const COLECCIONES: Coleccion[] = ["cuentas", "movimientos", "deudas", "pagos_deuda", "proyectos", "presupuesto", "por_cobrar", "conexiones", "compras_tax_free"];
 
 // Nube: se activa sola al configurar las dos variables de entorno de Supabase (ver docs/finanzas.md).
 // Cada usuario solo ve sus filas porque la base lo impone con reglas de seguridad por fila.
@@ -183,6 +183,8 @@ async function crearBackendNube(url: string, llave: string): Promise<Backend> {
       await Promise.all(
         COLECCIONES.map(async (coleccion) => {
           const { data, error } = await cliente.from(coleccion).select("*");
+          // Una tabla que todavía no existe (se publicó la app antes de crearla) no debe tumbar todo lo demás
+          if (error?.code === "PGRST205") return;
           fallo(error);
           (datos[coleccion] as unknown[]) = data ?? [];
         }),

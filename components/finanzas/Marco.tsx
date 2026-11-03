@@ -18,6 +18,7 @@ const SECCIONES = [
   { href: "/finanzas/proyectos", nombre: "Proyectos", icono: "M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" },
 ];
 const CUENTAS = { href: "/finanzas/cuentas", nombre: "Cuentas", icono: "M3 7h18v12H3zM3 11h18M7 15h3" };
+const TAX_FREE = { href: "/finanzas/tax-free", nombre: "Tax free", icono: "M3 10l9-6 9 6M5 10v9h14v-9M9 19v-5h6v5M12 7.5v.01" };
 const CONEXIONES = { href: "/finanzas/conexiones", nombre: "Conexiones", icono: "M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1" };
 
 function Marca() {
@@ -215,6 +216,7 @@ function Aplicacion({ children }: { children: ReactNode }) {
           {SECCIONES.slice(0, 1).map((s) => <EnlaceLateral key={s.href} s={s} actual={ruta === s.href} />)}
           <EnlaceLateral s={CUENTAS} actual={ruta === CUENTAS.href} />
           {SECCIONES.slice(1).map((s) => <EnlaceLateral key={s.href} s={s} actual={ruta === s.href} />)}
+          <EnlaceLateral s={TAX_FREE} actual={ruta === TAX_FREE.href} />
           <EnlaceLateral s={CONEXIONES} actual={ruta === CONEXIONES.href} />
         </nav>
         <div className="mt-auto flex flex-col gap-3">

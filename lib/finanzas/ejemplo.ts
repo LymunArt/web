@@ -57,6 +57,7 @@ export function datosEjemplo(): Datos {
       { id: nuevoId(), mes, categoria: "Transporte", limite: 150000 },
     ],
     por_cobrar: [],
+    compras_tax_free: [],
     conexiones: [],
   };
 }

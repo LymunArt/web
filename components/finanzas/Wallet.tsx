@@ -6,9 +6,9 @@ import type { Cuenta, LlaveWallet } from "@/lib/finanzas/tipos";
 import { useFinanzas } from "./Contexto";
 import { Boton, Hoja, Icono, Selector } from "./Ui";
 
-const URL_SUPABASE = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const LLAVE_PUBLICA = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
-const DIRECCION = `${URL_SUPABASE}/rest/v1/rpc/registrar_compra_wallet`;
+// El atajo solo abre este enlace: la llave va dentro, y el iPhone cambia COMERCIO y MONTO por los datos de la compra
+const enlaceWallet = (llave: string, prueba = false) =>
+  `${window.location.origin}/api/finanzas/wallet?llave=${encodeURIComponent(llave)}${prueba ? "&prueba=1" : "&comercio=COMERCIO&monto=MONTO"}`;
 
 const aHex = (bytes: ArrayBuffer) => [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, "0")).join("");
 
@@ -21,11 +21,7 @@ async function crearLlave() {
 }
 
 async function probar(llave: string) {
-  const r = await fetch(DIRECCION, {
-    method: "POST",
-    headers: { apikey: LLAVE_PUBLICA, "Content-Type": "application/json" },
-    body: JSON.stringify({ p_llave: llave, p_prueba: true }),
-  });
+  const r = await fetch(enlaceWallet(llave, true), { cache: "no-store" });
   return r.ok;
 }
 
@@ -97,26 +93,29 @@ function Conectar({ onCerrar }: { onCerrar: () => void }) {
             </p>
             <ol className="flex flex-col gap-5">
               <Paso n={1}>
-                <p>Abre la app <strong className="font-semibold">Atajos</strong> → pestaña <strong className="font-semibold">Automatización</strong> → <strong className="font-semibold">+</strong> → <strong className="font-semibold">Wallet</strong>.</p>
-                <p>Elige tu tarjeta, marca <strong className="font-semibold">Ejecutar de inmediato</strong> y toca <strong className="font-semibold">Siguiente</strong> → <strong className="font-semibold">Nueva automatización en blanco</strong>.</p>
+                <p>Copia tu enlace. Lleva tu llave adentro, así que no lo compartas.</p>
+                <Copiar etiqueta="Tu enlace" valor={enlaceWallet(llave)} secreto />
               </Paso>
               <Paso n={2}>
-                <p>Agrega la acción <strong className="font-semibold">Obtener contenido de URL</strong> y pega esta dirección:</p>
-                <Copiar etiqueta="Dirección" valor={DIRECCION} />
+                <p>
+                  En <strong className="font-semibold">Atajos</strong> → <strong className="font-semibold">Automatización</strong> → <strong className="font-semibold">+</strong> → <strong className="font-semibold">Wallet</strong>, elige tu tarjeta y
+                  apaga <strong className="font-semibold">Confirmar antes de ejecutar</strong>.
+                </p>
               </Paso>
               <Paso n={3}>
-                <p>Toca la flecha de la acción. En <strong className="font-semibold">Método</strong> elige <strong className="font-semibold">POST</strong>. En <strong className="font-semibold">Encabezados</strong> agrega dos:</p>
-                <Copiar etiqueta="apikey" valor={LLAVE_PUBLICA} />
-                <p><code className="text-tinta-suave">Content-Type</code> con el valor <code className="text-tinta-suave">application/json</code></p>
+                <p>
+                  Abajo, en <strong className="font-semibold">Buscar</strong>, escribe <strong className="font-semibold">URL</strong> y toca <strong className="font-semibold">Obtener contenido de URL</strong>.
+                  Toca la palabra azul <strong className="font-semibold">URL</strong> y pega tu enlace.
+                </p>
               </Paso>
               <Paso n={4}>
-                <p>En <strong className="font-semibold">Cuerpo de la solicitud</strong> elige <strong className="font-semibold">JSON</strong> y agrega tres campos de texto:</p>
-                <Copiar etiqueta="p_llave (tu llave)" valor={llave} secreto />
-                <p><code className="text-tinta-suave">p_comercio</code> → toca el campo y elige la variable <strong className="font-semibold">Comerciante</strong></p>
-                <p><code className="text-tinta-suave">p_monto</code> → elige la variable <strong className="font-semibold">Importe</strong></p>
+                <p>
+                  En el enlace, borra la palabra <code className="font-semibold">COMERCIO</code> y elige la variable <strong className="font-semibold">Comerciante</strong> que aparece arriba del teclado.
+                  Luego borra <code className="font-semibold">MONTO</code> y elige <strong className="font-semibold">Importe</strong>. Toca <strong className="font-semibold">Listo</strong>.
+                </p>
               </Paso>
               <Paso n={5}>
-                <p>Guarda la automatización y prueba que la llave funciona:</p>
+                <p>Comprueba que la llave quedó activa:</p>
                 <Boton
                   variante="suave"
                   onClick={async () => {

@@ -177,6 +177,7 @@ export const CATEGORIAS = {
     "Salud",
     "Ropa",
     "Ocio",
+    "Donaciones",
     "Imprevistos",
   ],
 } as const;

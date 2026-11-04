@@ -29,6 +29,7 @@ export default function Conexiones() {
     setProblema(null);
     setRevision(null);
     if (archivo.size > 10_000_000) return setProblema("El archivo pesa más de 10 MB. Prueba con un rango de fechas más corto.");
+    if (cuentasActivas.length && !cuentaId) return setProblema("Elige de qué cuenta es el extracto, para que su saldo cuadre.");
     const esPdf = archivo.type === "application/pdf" || /\.pdf$/i.test(archivo.name);
     let r: ResultadoExtracto;
     if (esPdf) {
@@ -138,7 +139,7 @@ export default function Conexiones() {
           <div className="flex max-w-md flex-col gap-4">
             {cuentasActivas.length > 0 && (
               <Selector etiqueta="¿De qué cuenta es el extracto?" value={cuentaId} onChange={(e) => setCuentaId(e.target.value)}>
-                <option value="">Sin cuenta (en pesos)</option>
+                {!cuentaId && <option value="">Elige una cuenta</option>}
                 {cuentasActivas.map((c) => <option key={c.id} value={c.id}>{c.nombre} · {c.moneda}</option>)}
               </Selector>
             )}

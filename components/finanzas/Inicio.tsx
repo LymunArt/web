@@ -5,6 +5,7 @@ import { cargaDeuda, gastosPorCategoria, progresoDeudas, resumenMes, saldoActual
 import { cop, fechaCorta, mesActual, nombreMes, porcentaje, proximoPago } from "@/lib/finanzas/formato";
 import { POR_REVISAR } from "@/lib/finanzas/tipos";
 import Ciudad from "./Ciudad";
+import AsignarCuentas, { movimientosSinCuenta } from "./AsignarCuentas";
 import { FormularioCuenta, ListaCuentas } from "./Cuentas";
 import { useFinanzas } from "./Contexto";
 import { Avance, Boton, Icono, SelectorMes, Subtitulo } from "./Ui";
@@ -15,6 +16,7 @@ const enlace = "text-sm font-semibold underline decoration-cielo decoration-2 ho
 export default function Inicio() {
   const { datos, mes, setMes, usuario, abrirRegistro, cargarEjemplo, backend } = useFinanzas();
   const [agregarCuenta, setAgregarCuenta] = useState(false);
+  const [asignar, setAsignar] = useState(false);
 
   if (datos.movimientos.length === 0 && datos.deudas.length === 0) {
     return (
@@ -43,6 +45,7 @@ export default function Inicio() {
   const base = Math.max(r.ingresos, r.gastos + r.pagos + r.ahorro, 1);
   const esteMes = mes === mesActual();
   const porRevisar = datos.movimientos.filter((m) => m.categoria === POR_REVISAR).length;
+  const sinCuenta = movimientosSinCuenta(datos).length;
 
   const proximos = datos.deudas
     .filter((d) => d.dia_pago && saldoActual(d, datos.pagos_deuda) > 0)
@@ -100,6 +103,17 @@ export default function Inicio() {
         {agregarCuenta && <FormularioCuenta onCerrar={() => setAgregarCuenta(false)} />}
       </section>
 
+      {sinCuenta > 0 && (
+        <button type="button" onClick={() => setAsignar(true)} className="tactil -mt-6 flex items-center justify-between gap-4 rounded-2xl bg-naranja/15 px-5 py-4 text-left">
+          <span>
+            <span className="block font-medium">{sinCuenta === 1 ? "1 movimiento no está en ninguna cuenta" : `${sinCuenta} movimientos no están en ninguna cuenta`}</span>
+            <span className="block text-sm text-tinta-suave">Por eso tus saldos no cuadran. Toca para asignarlos.</span>
+          </span>
+          <Icono d="M9 18l6-6-6-6" className="size-5 shrink-0 text-tinta-suave" />
+        </button>
+      )}
+      {asignar && <AsignarCuentas onCerrar={() => setAsignar(false)} />}
+
       {porRevisar > 0 && (
         <Link href="/finanzas/movimientos" className="tactil -mt-6 flex items-center justify-between gap-4 rounded-2xl bg-cielo/35 px-5 py-4 dark:bg-cielo/10">
           <span>
@@ -110,13 +124,6 @@ export default function Inicio() {
         </Link>
       )}
 
-      <Link href="/finanzas/tax-free" className="tactil -mt-6 flex items-center justify-between gap-4 rounded-2xl border border-linea px-5 py-4 hover:border-tinta-suave md:hidden">
-        <span>
-          <span className="block font-medium">Tax free</span>
-          <span className="block text-sm text-tinta-suave">Lo que te devuelven de las compras en el exterior</span>
-        </span>
-        <Icono d="M9 18l6-6-6-6" className="size-5 shrink-0 text-tinta-suave" />
-      </Link>
 
       <div className="grid gap-12 md:grid-cols-[1.25fr_1fr] md:gap-14">
         <section aria-labelledby="titulo-gastos">

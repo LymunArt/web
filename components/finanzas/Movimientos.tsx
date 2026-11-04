@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { movimientosACsv } from "@/lib/finanzas/conexiones";
 import { cop, diaLargo, dinero, nombreMes } from "@/lib/finanzas/formato";
@@ -14,6 +15,7 @@ const TIPOS: { valor: FiltroTipo; nombre: string }[] = [
   { valor: "todos", nombre: "Todos" },
   { valor: "ingreso", nombre: "Entró" },
   { valor: "gasto", nombre: "Salió" },
+  { valor: "transferencia", nombre: "Movida" },
   { valor: "pago_deuda", nombre: "Deudas" },
 ];
 
@@ -26,19 +28,29 @@ export function descargarCsv(movimientos: Movimiento[], nombre: string) {
   URL.revokeObjectURL(url);
 }
 
+// Desde Inicio o Cuentas se llega ya filtrado: ?cuenta=… o ?categoria=…
 export default function Movimientos() {
+  const params = useSearchParams();
+  return <Lista key={params.toString()} cuentaInicial={params.get("cuenta") ?? ""} categoriaInicial={params.get("categoria") ?? ""} />;
+}
+
+function Lista({ cuentaInicial, categoriaInicial }: { cuentaInicial: string; categoriaInicial: string }) {
   const { datos, mes, setMes, abrirRegistro } = useFinanzas();
   const [tipo, setTipo] = useState<FiltroTipo>("todos");
-  const [categoria, setCategoria] = useState("");
+  const [categoria, setCategoria] = useState(categoriaInicial);
   const [busqueda, setBusqueda] = useState("");
+  const [cuentaId, setCuentaId] = useState(cuentaInicial);
   const [transferencia, setTransferencia] = useState<Movimiento | null>(null);
+
+  const enCuenta = (m: Movimiento) => !cuentaId || m.cuenta_id === cuentaId || m.cuenta_destino_id === cuentaId;
+  const cuentasConMovimientos = datos.cuentas.filter((c) => !c.archivada || datos.movimientos.some((m) => m.cuenta_id === c.id));
 
   const delMes = useMemo(() => datos.movimientos.filter((m) => m.fecha.startsWith(mes)), [datos.movimientos, mes]);
   const categorias = useMemo(() => [...new Set(delMes.map((m) => m.categoria))].sort(), [delMes]);
 
   const texto = busqueda.trim().toLowerCase();
   const visibles = delMes
-    .filter((m) => (tipo === "todos" || m.tipo === tipo) && (!categoria || m.categoria === categoria) && (!texto || m.descripcion.toLowerCase().includes(texto)))
+    .filter((m) => (tipo === "todos" || m.tipo === tipo) && enCuenta(m) && (!categoria || m.categoria === categoria) && (!texto || m.descripcion.toLowerCase().includes(texto)))
     .sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   const dias = new Map<string, Movimiento[]>();
@@ -50,11 +62,17 @@ export default function Movimientos() {
 
       <div className="mb-8 flex flex-col gap-3">
         <Segmentado etiqueta="Filtrar por tipo" opciones={TIPOS} valor={tipo} onCambio={setTipo} />
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
           <Campo etiqueta="Buscar" type="search" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+          {cuentasConMovimientos.length > 1 && (
+            <Selector etiqueta="Cuenta" value={cuentaId} onChange={(e) => setCuentaId(e.target.value)}>
+              <option value="">Todas</option>
+              {cuentasConMovimientos.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+            </Selector>
+          )}
           <Selector etiqueta="Categoría" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
             <option value="">Todas</option>
-            {categorias.map((c) => <option key={c}>{c}</option>)}
+            {[...new Set([...categorias, ...(categoria ? [categoria] : [])])].map((c) => <option key={c}>{c}</option>)}
           </Selector>
         </div>
       </div>
@@ -63,7 +81,7 @@ export default function Movimientos() {
         delMes.length === 0 ? (
           <Vacio titulo={`Nada en ${nombreMes(mes, false)} todavía`} texto="Cuando registres un ingreso, un gasto o un pago, aparecerá aquí." accion={<Boton onClick={() => abrirRegistro()}>Registrar</Boton>} />
         ) : (
-          <Vacio titulo="No encontramos movimientos" texto="Prueba con otro filtro u otra palabra." accion={<Boton variante="suave" onClick={() => { setTipo("todos"); setCategoria(""); setBusqueda(""); }}>Quitar filtros</Boton>} />
+          <Vacio titulo="No encontramos movimientos" texto="Prueba con otro filtro u otra palabra." accion={<Boton variante="suave" onClick={() => { setTipo("todos"); setCategoria(""); setBusqueda(""); setCuentaId(""); }}>Quitar filtros</Boton>} />
         )
       ) : (
         <div className="flex flex-col gap-8">

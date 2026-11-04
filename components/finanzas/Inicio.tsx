@@ -6,7 +6,7 @@ import { cop, fechaCorta, mesActual, nombreMes, porcentaje, proximoPago } from "
 import { POR_REVISAR } from "@/lib/finanzas/tipos";
 import Ciudad from "./Ciudad";
 import AsignarCuentas, { movimientosSinCuenta } from "./AsignarCuentas";
-import { FormularioCuenta, ListaCuentas } from "./Cuentas";
+import { FormularioCuenta, ListaCuentas, totalesCuentas, useTasas } from "./Cuentas";
 import { useFinanzas } from "./Contexto";
 import { Avance, Boton, Icono, SelectorMes, Subtitulo } from "./Ui";
 import { useState } from "react";
@@ -17,6 +17,7 @@ export default function Inicio() {
   const { datos, mes, setMes, usuario, abrirRegistro, cargarEjemplo, backend } = useFinanzas();
   const [agregarCuenta, setAgregarCuenta] = useState(false);
   const [asignar, setAsignar] = useState(false);
+  const tasas = useTasas();
 
   if (datos.movimientos.length === 0 && datos.deudas.length === 0) {
     return (
@@ -57,21 +58,84 @@ export default function Inicio() {
     { nombre: "Gastos", valor: r.gastos },
     { nombre: "Cuotas de deudas", valor: r.pagos },
     { nombre: "Ahorro y proyectos", valor: r.ahorro },
-  ];
+  ].filter((f, i) => i < 2 || f.valor > 0);
+  const hayCuentas = datos.cuentas.some((c) => !c.archivada);
+  const { tienes, debes } = totalesCuentas(datos, tasas);
+  const balance = (
+    <p className="flex items-baseline justify-between gap-4 border-t border-linea pt-4">
+      <span className="font-medium">{r.disponible >= 0 ? (esteMes ? "Te quedan del mes" : "Te quedaron del mes") : "Salió más de lo que entró"}</span>
+      <span className={`cifras font-titulo text-xl font-semibold ${r.disponible < 0 ? "text-boton-hover dark:text-naranja" : ""}`}>{r.disponible < 0 ? "−" : ""}{cop(Math.abs(r.disponible))}</span>
+    </p>
+  );
 
   return (
     <div className="flex flex-col gap-12">
-      <section aria-labelledby="titulo-disponible" className="flex flex-col items-start gap-2">
-        <div className="-ml-3 mb-2"><SelectorMes mes={mes} onCambio={setMes} /></div>
-        <h1 id="titulo-disponible" className="text-lg text-tinta-suave">
-          {r.disponible >= 0 ? (esteMes ? "Te quedan para moverte" : `Te quedaron en ${nombreMes(mes, false)}`) : "Saliste por encima de lo que entró"}
-        </h1>
-        <p className="cifras font-titulo text-[clamp(3rem,10vw,5.5rem)] leading-none font-bold tracking-[-0.04em]">
-          <span className={r.disponible >= 0 ? "text-tinta" : "text-boton-hover dark:text-naranja"}>{cop(Math.abs(r.disponible))}</span>
-        </p>
+      {/* Lo primero: cuánta plata tienes hoy. Sin cuentas, lo que te queda del mes. */}
+      {hayCuentas ? (
+        <section aria-labelledby="titulo-tienes" className="flex flex-col items-start gap-2">
+          <h1 id="titulo-tienes" className="text-lg text-tinta-suave">Tienes en tus cuentas</h1>
+          <p className="cifras font-titulo text-[clamp(3rem,10vw,5.5rem)] leading-none font-bold tracking-[-0.04em]">
+            <span className={tienes >= 0 ? "text-tinta" : "text-boton-hover dark:text-naranja"}>{tienes < 0 ? "−" : ""}{cop(Math.abs(tienes))}</span>
+          </p>
+          {debes > 0 && <p className="cifras text-tinta-suave">Y debes {cop(debes)} en tarjetas de crédito</p>}
+        </section>
+      ) : (
+        <section aria-labelledby="titulo-disponible" className="flex flex-col items-start gap-2">
+          <h1 id="titulo-disponible" className="text-lg text-tinta-suave">
+            {r.disponible >= 0 ? (esteMes ? "Te quedan para moverte" : `Te quedaron en ${nombreMes(mes, false)}`) : "Saliste por encima de lo que entró"}
+          </h1>
+          <p className="cifras font-titulo text-[clamp(3rem,10vw,5.5rem)] leading-none font-bold tracking-[-0.04em]">
+            <span className={r.disponible >= 0 ? "text-tinta" : "text-boton-hover dark:text-naranja"}>{cop(Math.abs(r.disponible))}</span>
+          </p>
+        </section>
+      )}
+
+      {/* Lo que falta por arreglar va arriba, para que los saldos siempre cuadren */}
+      {(sinCuenta > 0 || porRevisar > 0) && (
+        <section aria-label="Por arreglar" className="-mt-4 flex flex-col gap-3">
+          {sinCuenta > 0 && (
+            <button type="button" onClick={() => setAsignar(true)} className="tactil flex items-center justify-between gap-4 rounded-2xl bg-naranja/15 px-5 py-4 text-left">
+              <span>
+                <span className="block font-medium">{sinCuenta === 1 ? "1 movimiento no está en ninguna cuenta" : `${sinCuenta} movimientos no están en ninguna cuenta`}</span>
+                <span className="block text-sm text-tinta-suave">Por eso tus saldos no cuadran. Toca para asignarlos.</span>
+              </span>
+              <Icono d="M9 18l6-6-6-6" className="size-5 shrink-0 text-tinta-suave" />
+            </button>
+          )}
+          {porRevisar > 0 && (
+            <Link href={`/finanzas/movimientos?categoria=${encodeURIComponent(POR_REVISAR)}`} className="tactil flex items-center justify-between gap-4 rounded-2xl bg-cielo/35 px-5 py-4 dark:bg-cielo/10">
+              <span>
+                <span className="block font-medium">{porRevisar === 1 ? "1 compra llegó del Wallet" : `${porRevisar} compras llegaron del Wallet`}</span>
+                <span className="block text-sm text-tinta-suave">Ponles categoría para que cuenten bien</span>
+              </span>
+              <Icono d="M9 18l6-6-6-6" className="size-5 shrink-0 text-tinta-suave" />
+            </Link>
+          )}
+        </section>
+      )}
+      {asignar && <AsignarCuentas onCerrar={() => setAsignar(false)} />}
+
+      <section aria-labelledby="titulo-cuentas">
+        <div className="mb-2 flex items-center justify-between gap-4">
+          <h2 id="titulo-cuentas" className="font-titulo text-lg font-semibold tracking-[-0.015em]">Tus cuentas</h2>
+          {hayCuentas ? <Link href="/finanzas/cuentas" className={enlace}>Ver todas</Link> : null}
+        </div>
+        {hayCuentas ? (
+          <ListaCuentas compacta />
+        ) : (
+          <p className="text-tinta-suave">
+            Agrega tus cuentas de cualquier banco o billetera, en pesos o en otra moneda. Así sabes cuánto tienes en cada una.{" "}
+            <button type="button" onClick={() => setAgregarCuenta(true)} className={enlace}>Agregar cuenta</button>
+          </p>
+        )}
+        {agregarCuenta && <FormularioCuenta onCerrar={() => setAgregarCuenta(false)} />}
       </section>
 
-      <section aria-label="Resumen del mes">
+      <section aria-labelledby="titulo-mes" className="flex flex-col gap-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="titulo-mes" className="font-titulo text-lg font-semibold tracking-[-0.015em]">{esteMes ? "Este mes" : `En ${nombreMes(mes, false)}`}</h2>
+          <div className="-mr-3"><SelectorMes mes={mes} onCambio={setMes} /></div>
+        </div>
         <ul className="grid gap-x-10 gap-y-5 sm:grid-cols-2">
           {filas.map((f) => (
             <li key={f.nombre} className="flex flex-col gap-2">
@@ -83,47 +147,8 @@ export default function Inicio() {
             </li>
           ))}
         </ul>
+        {hayCuentas && balance}
       </section>
-
-      <section aria-labelledby="titulo-cuentas">
-        <div className="mb-2 flex items-center justify-between gap-4">
-          <h2 id="titulo-cuentas" className="font-titulo text-lg font-semibold tracking-[-0.015em]">Tus cuentas</h2>
-          {datos.cuentas.some((c) => !c.archivada) ? (
-            <Link href="/finanzas/cuentas" className={enlace}>Ver todas</Link>
-          ) : null}
-        </div>
-        {datos.cuentas.some((c) => !c.archivada) ? (
-          <ListaCuentas compacta />
-        ) : (
-          <p className="text-tinta-suave">
-            Agrega tus cuentas de cualquier banco o billetera, en pesos o en otra moneda.{" "}
-            <button type="button" onClick={() => setAgregarCuenta(true)} className={enlace}>Agregar cuenta</button>
-          </p>
-        )}
-        {agregarCuenta && <FormularioCuenta onCerrar={() => setAgregarCuenta(false)} />}
-      </section>
-
-      {sinCuenta > 0 && (
-        <button type="button" onClick={() => setAsignar(true)} className="tactil -mt-6 flex items-center justify-between gap-4 rounded-2xl bg-naranja/15 px-5 py-4 text-left">
-          <span>
-            <span className="block font-medium">{sinCuenta === 1 ? "1 movimiento no está en ninguna cuenta" : `${sinCuenta} movimientos no están en ninguna cuenta`}</span>
-            <span className="block text-sm text-tinta-suave">Por eso tus saldos no cuadran. Toca para asignarlos.</span>
-          </span>
-          <Icono d="M9 18l6-6-6-6" className="size-5 shrink-0 text-tinta-suave" />
-        </button>
-      )}
-      {asignar && <AsignarCuentas onCerrar={() => setAsignar(false)} />}
-
-      {porRevisar > 0 && (
-        <Link href="/finanzas/movimientos" className="tactil -mt-6 flex items-center justify-between gap-4 rounded-2xl bg-cielo/35 px-5 py-4 dark:bg-cielo/10">
-          <span>
-            <span className="block font-medium">{porRevisar === 1 ? "1 compra llegó del Wallet" : `${porRevisar} compras llegaron del Wallet`}</span>
-            <span className="block text-sm text-tinta-suave">Ponles categoría para que cuenten bien</span>
-          </span>
-          <Icono d="M9 18l6-6-6-6" className="size-5 shrink-0 text-tinta-suave" />
-        </Link>
-      )}
-
 
       <div className="grid gap-12 md:grid-cols-[1.25fr_1fr] md:gap-14">
         <section aria-labelledby="titulo-gastos">

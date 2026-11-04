@@ -11,6 +11,17 @@ import { Boton, Campo, CampoMonto, Hoja, Selector } from "./Ui";
 // Mover plata entre cuentas propias: pagar la tarjeta de crédito, pasar de Nequi a Nu...
 // No es gasto ni ingreso, así que no se cuenta en el resumen del mes: el gasto ya fue la compra.
 export default function Transferir({ destino, movimiento, onCerrar }: { destino?: Cuenta; movimiento?: Movimiento; onCerrar: () => void }) {
+  const { datos } = useFinanzas();
+  const hacia = datos.cuentas.find((c) => c.id === (movimiento?.cuenta_destino_id ?? destino?.id));
+  return (
+    <Hoja titulo={hacia?.tipo === "credito" ? `Pagar ${hacia.nombre}` : "Mover plata entre cuentas"} onCerrar={onCerrar}>
+      {(cerrar) => <FormularioTransferencia destino={destino} movimiento={movimiento} cerrar={cerrar} />}
+    </Hoja>
+  );
+}
+
+// El formulario solo, para usarlo también dentro de Registrar
+export function FormularioTransferencia({ destino, movimiento, cerrar }: { destino?: Cuenta; movimiento?: Movimiento; cerrar: () => void }) {
   const { datos, guardar, borrarMovimiento, avisar } = useFinanzas();
   const activas = datos.cuentas.filter((c) => !c.archivada || c.id === movimiento?.cuenta_id || c.id === movimiento?.cuenta_destino_id);
   const [haciaId, setHaciaId] = useState(movimiento?.cuenta_destino_id ?? destino?.id ?? "");
@@ -25,7 +36,7 @@ export default function Transferir({ destino, movimiento, onCerrar }: { destino?
   const [error, setError] = useState<string | null>(null);
   const pagoTarjeta = hacia?.tipo === "credito";
 
-  async function enviar(cerrar: () => void) {
+  async function enviar() {
     if (!desde || !hacia) return setError("Elige de qué cuenta sale y a cuál llega.");
     if (desde.id === hacia.id) return setError("La cuenta de origen y la de destino deben ser distintas.");
     if (monto <= 0) return setError("Escribe cuánto vas a mover.");
@@ -54,24 +65,33 @@ export default function Transferir({ destino, movimiento, onCerrar }: { destino?
   }
 
   return (
-    <Hoja titulo={pagoTarjeta ? `Pagar ${hacia?.nombre ?? "tarjeta"}` : "Mover plata entre cuentas"} onCerrar={onCerrar}>
-      {(cerrar) => (
-        <form noValidate className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); enviar(cerrar); }}>
+        <form noValidate className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); enviar(); }}>
           {pagoTarjeta && (
             <p className="rounded-xl bg-cielo/35 p-3 text-sm dark:bg-cielo/10">
               Debes {dinero(deuda, hacia.moneda)}. Pagar la tarjeta no es un gasto nuevo: el gasto fue cada compra. Aquí solo baja tu deuda y baja la cuenta desde donde pagas.
             </p>
           )}
-          {!destino && (
-            <Selector etiqueta="¿A qué cuenta llega?" value={haciaId} onChange={(e) => setHaciaId(e.target.value)}>
-              <option value="">Elige una cuenta</option>
-              {activas.map((c) => <option key={c.id} value={c.id}>{c.nombre} ({c.moneda})</option>)}
-            </Selector>
-          )}
           <Selector etiqueta="¿Desde qué cuenta?" value={desdeId} onChange={(e) => setDesdeId(e.target.value)}>
             {posiblesOrigen.length === 0 && <option value="">No tienes otra cuenta en {hacia?.moneda ?? "esa moneda"}</option>}
             {posiblesOrigen.map((c) => <option key={c.id} value={c.id}>{c.nombre} · {dinero(saldoCuenta(datos, c.id), c.moneda)}</option>)}
           </Selector>
+          {!destino && (
+            <Selector
+              etiqueta="¿A qué cuenta llega?"
+              value={haciaId}
+              onChange={(e) => {
+                const nueva = datos.cuentas.find((c) => c.id === e.target.value);
+                setHaciaId(e.target.value);
+                // Al elegir una tarjeta se propone pagar lo que se debe, y el origen se ajusta a la moneda
+                if (nueva?.tipo === "credito" && !monto) setMonto(Math.max(saldoCuenta(datos, nueva.id), 0));
+                const valido = activas.find((c) => c.id === desdeId && c.id !== nueva?.id && c.tipo !== "credito" && (!nueva || c.moneda === nueva.moneda));
+                if (!valido) setDesdeId(activas.find((c) => c.tipo !== "credito" && c.id !== nueva?.id && (!nueva || c.moneda === nueva.moneda))?.id ?? "");
+              }}
+            >
+              <option value="">Elige una cuenta</option>
+              {activas.filter((c) => c.id !== desdeId).map((c) => <option key={c.id} value={c.id}>{c.nombre} ({c.moneda})</option>)}
+            </Selector>
+          )}
           <CampoMonto key={desde?.moneda ?? "COP"} etiqueta="¿Cuánto?" valor={monto} onCambio={setMonto} moneda={desde?.moneda ?? hacia?.moneda ?? "COP"} />
           <Campo etiqueta="Fecha" type="date" value={fecha} max={hoy()} onChange={(e) => setFecha(e.target.value)} />
           {error && <p role="alert" className="text-sm font-medium text-boton-hover dark:text-naranja">{error}</p>}
@@ -84,7 +104,5 @@ export default function Transferir({ destino, movimiento, onCerrar }: { destino?
             </Boton>
           )}
         </form>
-      )}
-    </Hoja>
   );
 }

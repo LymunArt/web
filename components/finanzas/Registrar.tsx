@@ -7,12 +7,15 @@ import { cop, dinero, hoy, nuevoId } from "@/lib/finanzas/formato";
 import { obtenerTasas, type Tasas } from "@/lib/finanzas/tasas";
 import { AHORRO_EMERGENCIA, APORTE_PROYECTO, CATEGORIAS, MEDIOS_PAGO, PAGO_DEUDA, POR_REVISAR, type MedioPago, type Movimiento, type TipoMovimiento } from "@/lib/finanzas/tipos";
 import { useFinanzas } from "./Contexto";
+import { FormularioTransferencia } from "./Transferir";
 import { Boton, CampoMonto, Campo, Hoja, Pildoras, Segmentado, Selector } from "./Ui";
 
+// Todo se registra desde aquí. "Mover" solo aparece con dos cuentas o más, y "Cuota" solo si hay deudas.
 const TIPOS: { valor: TipoMovimiento; nombre: string }[] = [
   { valor: "gasto", nombre: "Gasto" },
   { valor: "ingreso", nombre: "Ingreso" },
-  { valor: "pago_deuda", nombre: "Cuota deuda" },
+  { valor: "transferencia", nombre: "Mover" },
+  { valor: "pago_deuda", nombre: "Cuota" },
 ];
 
 const OTRA_CATEGORIA = "Otra…";
@@ -84,6 +87,12 @@ export default function Registrar() {
       ? saldoCuenta({ ...datos, movimientos: datos.movimientos.filter((m) => m.id !== inicial.id) }, cuenta.id) - monto
       : null;
 
+  const tipos = TIPOS.filter(
+    (t) =>
+      t.valor === tipo ||
+      (t.valor === "transferencia" ? !editando && datos.cuentas.filter((c) => !c.archivada).length > 1 : t.valor === "pago_deuda" ? datos.deudas.length > 0 : true),
+  );
+
   function cambiarTipo(nuevo: TipoMovimiento) {
     setTipo(nuevo);
     setCategoria("");
@@ -116,7 +125,13 @@ export default function Registrar() {
 
   return (
     <Hoja titulo={editando ? "Editar movimiento" : "Registrar"} onCerrar={cerrarRegistro}>
-      {(cerrar) => (
+      {(cerrar) => tipo === "transferencia" ? (
+        <div className="flex flex-col gap-5">
+          {tipos.length > 1 && <Segmentado etiqueta="Tipo de movimiento" opciones={tipos} valor={tipo} onCambio={cambiarTipo} />}
+          <p className="text-sm text-tinta-suave">Para pasar plata de una cuenta tuya a otra, o pagar una tarjeta de crédito. No cuenta como gasto.</p>
+          <FormularioTransferencia cerrar={cerrar} />
+        </div>
+      ) : (
         <form
           noValidate
           className="flex flex-col gap-5"
@@ -125,7 +140,7 @@ export default function Registrar() {
             enviar(cerrar);
           }}
         >
-          <Segmentado etiqueta="Tipo de movimiento" opciones={TIPOS} valor={tipo} onCambio={cambiarTipo} />
+          {tipos.length > 1 && <Segmentado etiqueta="Tipo de movimiento" opciones={tipos} valor={tipo} onCambio={cambiarTipo} />}
           <div className="py-3">
             <CampoMonto key={moneda} etiqueta={`Valor en ${moneda}`} valor={monto} onCambio={setMonto} grande autoFocus={!editando} moneda={moneda} />
             {intento && monto <= 0 && <p className="mt-1 text-center text-sm font-medium text-boton-hover dark:text-naranja">Escribe cuánto fue.</p>}

@@ -70,9 +70,11 @@ function FilaCuenta({ c, tasas, onEditar, onPagar }: { c: Cuenta; tasas: Tasas |
           <span className="cifras block text-sm text-tinta-suave">
             {credito && disponible !== null
               ? `Disponible ${dinero(Math.max(disponible, 0), c.moneda)}`
-              : c.moneda !== "COP"
-                ? tasa ? `≈ ${cop(saldo * tasa)}` : "Sin tasa"
-                : ""}
+              : !credito && saldo < 0
+                ? "¿Falta registrar un ingreso?"
+                : c.moneda !== "COP"
+                  ? tasa ? `≈ ${cop(saldo * tasa)}` : "Sin tasa"
+                  : ""}
           </span>
         </span>
       </button>
@@ -161,7 +163,8 @@ const ENTIDADES: Record<TipoCuenta, string[]> = {
 const OTRA = "Otra";
 
 export function FormularioCuenta({ cuenta, onCerrar }: { cuenta?: Cuenta; onCerrar: () => void }) {
-  const { datos, guardar, avisar } = useFinanzas();
+  const { datos, guardar, borrar, avisar } = useFinanzas();
+  const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [tipo, setTipo] = useState<TipoCuenta>(cuenta?.tipo ?? "billetera");
   const [entidad, setEntidad] = useState(cuenta?.entidad ?? "");
   const conocida = (e: string, t: TipoCuenta) => ENTIDADES[t].includes(e);
@@ -169,7 +172,30 @@ export function FormularioCuenta({ cuenta, onCerrar }: { cuenta?: Cuenta; onCerr
   // El apodo solo hace falta si tiene dos cuentas del mismo banco; si es igual a la entidad, no se muestra
   const [apodo, setApodo] = useState(cuenta && cuenta.nombre !== cuenta.entidad ? cuenta.nombre : "");
   const [moneda, setMoneda] = useState(cuenta?.moneda ?? "COP");
-  const [saldo, setSaldo] = useState(Number(cuenta?.saldo_inicial ?? 0));
+  const [saldo, setSaldo] = useState(cuenta ? saldoCuenta(datos, cuenta.id) : 0);
+  const delMovimientos = cuenta ? saldoCuenta(datos, cuenta.id) - Number(cuenta.saldo_inicial) : 0;
+  const propios = cuenta ? datos.movimientos.filter((m) => m.cuenta_id === cuenta.id || m.cuenta_destino_id === cuenta.id) : [];
+
+  // Eliminar no deja huecos: los gastos e ingresos de la cuenta se van con ella, y si había plata movida
+  // hacia o desde otra cuenta, esa otra conserva su saldo (el movimiento queda como ingreso o gasto suyo)
+  function eliminar() {
+    if (!cuenta) return;
+    for (const m of propios) {
+      if (m.tipo !== "transferencia") {
+        datos.pagos_deuda.filter((p) => p.movimiento_id === m.id).forEach((p) => borrar("pagos_deuda", p.id));
+        borrar("movimientos", m.id);
+      } else if (m.cuenta_id === cuenta.id && m.cuenta_destino_id) {
+        guardar("movimientos", [{ ...m, tipo: "ingreso", categoria: "Otros ingresos", cuenta_id: m.cuenta_destino_id, cuenta_destino_id: null }]);
+      } else if (m.cuenta_destino_id === cuenta.id && m.cuenta_id) {
+        guardar("movimientos", [{ ...m, tipo: "gasto", cuenta_destino_id: null }]);
+      } else {
+        borrar("movimientos", m.id);
+      }
+    }
+    datos.llaves_wallet.filter((l) => l.cuenta_id === cuenta.id).forEach((l) => borrar("llaves_wallet", l.id));
+    borrar("cuentas", cuenta.id);
+    avisar(`${cuenta.nombre} eliminada`);
+  }
   const [cupo, setCupo] = useState(Number(cuenta?.cupo ?? 0));
   const [diaCorte, setDiaCorte] = useState(cuenta?.dia_corte ? String(cuenta.dia_corte) : "");
   const [diaPago, setDiaPago] = useState(cuenta?.dia_pago ? String(cuenta.dia_pago) : "");
@@ -189,7 +215,7 @@ export function FormularioCuenta({ cuenta, onCerrar }: { cuenta?: Cuenta; onCerr
         entidad: entidadFinal,
         tipo,
         moneda,
-        saldo_inicial: saldo,
+        saldo_inicial: saldo - delMovimientos,
         archivada: cuenta?.archivada ?? false,
         cupo: credito ? cupo || null : null,
         dia_corte: credito ? dia(diaCorte) : null,
@@ -265,6 +291,24 @@ export function FormularioCuenta({ cuenta, onCerrar }: { cuenta?: Cuenta; onCerr
             >
               Archivar cuenta
             </Boton>
+          )}
+          {cuenta && !confirmarEliminar && (
+            <button type="button" onClick={() => setConfirmarEliminar(true)} className="min-h-11 text-sm font-semibold text-boton-hover dark:text-naranja">
+              Eliminar cuenta
+            </button>
+          )}
+          {cuenta && confirmarEliminar && (
+            <div className="flex flex-col gap-3 rounded-xl border border-naranja p-4 text-sm">
+              <p>
+                {propios.length
+                  ? `Se borrará ${cuenta.nombre} con sus ${propios.length} movimientos. Esto no se puede deshacer. Si solo quieres dejar de verla, archívala.`
+                  : `Se borrará ${cuenta.nombre}. Esto no se puede deshacer.`}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Boton onClick={() => { eliminar(); cerrar(); }}>Sí, eliminar</Boton>
+                <Boton variante="suave" onClick={() => setConfirmarEliminar(false)}>Cancelar</Boton>
+              </div>
+            </div>
           )}
         </form>
       )}

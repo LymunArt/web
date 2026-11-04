@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { desglosarPago, medioDeCuenta } from "@/lib/finanzas/calculos";
-import { cop, hoy, nuevoId } from "@/lib/finanzas/formato";
+import { desglosarPago, medioDeCuenta, saldoCuenta } from "@/lib/finanzas/calculos";
+import { cop, dinero, hoy, nuevoId } from "@/lib/finanzas/formato";
 import { obtenerTasas, type Tasas } from "@/lib/finanzas/tasas";
 import { AHORRO_EMERGENCIA, APORTE_PROYECTO, CATEGORIAS, MEDIOS_PAGO, PAGO_DEUDA, POR_REVISAR, type MedioPago, type Movimiento, type TipoMovimiento } from "@/lib/finanzas/tipos";
 import { useFinanzas } from "./Contexto";
@@ -35,7 +35,11 @@ export default function Registrar() {
   const [intento, setIntento] = useState(false);
   const [nuevaCategoria, setNuevaCategoria] = useState("");
   const cuentasActivas = datos.cuentas.filter((c) => !c.archivada || c.id === inicial.cuenta_id);
-  const [cuentaId, setCuentaId] = useState(inicial.cuenta_id ?? (editando ? "" : cuentasActivas[0]?.id ?? ""));
+  // Si ya hay cuentas, todo movimiento va en una: así ningún saldo queda descuadrado. Se propone la última que se usó.
+  const ultimaUsada = [...datos.movimientos]
+    .filter((m) => m.cuenta_id && cuentasActivas.some((c) => c.id === m.cuenta_id && c.tipo !== "credito"))
+    .sort((a, b) => b.fecha.localeCompare(a.fecha))[0]?.cuenta_id;
+  const [cuentaId, setCuentaId] = useState(inicial.cuenta_id ?? (editando ? "" : ultimaUsada ?? cuentasActivas[0]?.id ?? ""));
   const [tasas, setTasas] = useState<Tasas | null>(null);
   const [sinTasa, setSinTasa] = useState(false);
 
@@ -71,7 +75,14 @@ export default function Registrar() {
   const faltaCategoria = tipo !== "pago_deuda" && !categoriaFinal;
   const faltaProyecto = categoria === APORTE_PROYECTO && !proyectoId;
   const faltaDeuda = tipo === "pago_deuda" && !deuda;
-  const valido = monto > 0 && !faltaCategoria && !faltaProyecto && !faltaDeuda && tasa !== null;
+  const faltaCuenta = cuentasActivas.length > 0 && !cuenta;
+  const valido = monto > 0 && !faltaCategoria && !faltaProyecto && !faltaDeuda && !faltaCuenta && tasa !== null;
+
+  // Si con este gasto la cuenta queda en negativo, casi siempre falta registrar un ingreso o es otra cuenta
+  const saldoDespues =
+    cuenta && cuenta.tipo !== "credito" && tipo !== "ingreso" && monto > 0
+      ? saldoCuenta({ ...datos, movimientos: datos.movimientos.filter((m) => m.id !== inicial.id) }, cuenta.id) - monto
+      : null;
 
   function cambiarTipo(nuevo: TipoMovimiento) {
     setTipo(nuevo);
@@ -130,12 +141,21 @@ export default function Registrar() {
           </div>
 
           {cuentasActivas.length > 0 && (
-            <Selector etiqueta="¿De qué cuenta?" value={cuentaId} onChange={(e) => setCuentaId(e.target.value)}>
-              {cuentasActivas.map((c) => (
-                <option key={c.id} value={c.id}>{c.nombre} · {c.moneda}</option>
-              ))}
-              <option value="">Sin cuenta (en pesos)</option>
-            </Selector>
+            <div className="flex flex-col gap-2">
+              <Selector etiqueta={tipo === "ingreso" ? "¿A qué cuenta llegó?" : "¿De qué cuenta salió?"} value={cuentaId} onChange={(e) => setCuentaId(e.target.value)}>
+                {!cuenta && <option value="">Elige una cuenta</option>}
+                {cuentasActivas.map((c) => (
+                  <option key={c.id} value={c.id}>{c.nombre} · {c.moneda}</option>
+                ))}
+              </Selector>
+              {intento && faltaCuenta && <p className="text-sm font-medium text-boton-hover dark:text-naranja">Elige la cuenta para que su saldo cuadre.</p>}
+              {saldoDespues !== null && saldoDespues < 0 && cuenta && (
+                <p role="status" className="rounded-xl bg-naranja/15 p-3 text-sm">
+                  Con esto, <strong className="font-semibold">{cuenta.nombre}</strong> quedaría en <strong className="font-semibold">{dinero(saldoDespues, cuenta.moneda)}</strong>.
+                  ¿Te falta registrar un ingreso a esa cuenta, o salió de otra?
+                </p>
+              )}
+            </div>
           )}
 
           {tipo === "pago_deuda" ? (

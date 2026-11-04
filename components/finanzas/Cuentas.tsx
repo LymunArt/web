@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { saldoCuenta } from "@/lib/finanzas/calculos";
 import { cop, dinero, nuevoId, proximoPago } from "@/lib/finanzas/formato";
 import { obtenerTasas, type Tasas } from "@/lib/finanzas/tasas";
-import { MONEDAS, TIPOS_CUENTA, type Cuenta, type TipoCuenta } from "@/lib/finanzas/tipos";
+import { MONEDAS, TIPOS_CUENTA, type Cuenta, type Datos, type TipoCuenta } from "@/lib/finanzas/tipos";
 import { useFinanzas } from "./Contexto";
 import { Boton, Campo, CampoMonto, Hoja, Icono, Pildoras, Selector, Titulo, Vacio } from "./Ui";
 import Transferir from "./Transferir";
@@ -87,6 +88,19 @@ function FilaCuenta({ c, tasas, onEditar, onPagar }: { c: Cuenta; tasas: Tasas |
   );
 }
 
+// Lo que tienes (todo menos tarjetas de crédito) y lo que debes en tarjetas, en pesos con la tasa de hoy
+export function totalesCuentas(datos: Datos, tasas: Tasas | null) {
+  const activas = datos.cuentas.filter((c) => !c.archivada);
+  const enPesos = (c: Cuenta) => {
+    const tasa = c.moneda === "COP" ? 1 : tasas?.pesosPor[c.moneda];
+    return tasa ? saldoCuenta(datos, c.id) * tasa : 0;
+  };
+  return {
+    tienes: activas.filter((c) => c.tipo !== "credito").reduce((s, c) => s + enPesos(c), 0),
+    debes: activas.filter((c) => c.tipo === "credito").reduce((s, c) => s + Math.max(enPesos(c), 0), 0),
+  };
+}
+
 // Lista de cuentas agrupadas, con lo que tienes y lo que debes en tarjetas, todo en pesos con la tasa de hoy
 export function ListaCuentas({ compacta = false }: { compacta?: boolean }) {
   const { datos } = useFinanzas();
@@ -95,16 +109,11 @@ export function ListaCuentas({ compacta = false }: { compacta?: boolean }) {
   const [pagar, setPagar] = useState<Cuenta | null>(null);
   const [mover, setMover] = useState(false);
   const activas = datos.cuentas.filter((c) => !c.archivada);
-  const enPesos = (c: Cuenta) => {
-    const tasa = c.moneda === "COP" ? 1 : tasas?.pesosPor[c.moneda];
-    return tasa ? saldoCuenta(datos, c.id) * tasa : 0;
-  };
-  const tienes = activas.filter((c) => c.tipo !== "credito").reduce((s, c) => s + enPesos(c), 0);
-  const debes = activas.filter((c) => c.tipo === "credito").reduce((s, c) => s + Math.max(enPesos(c), 0), 0);
+  const { tienes, debes } = totalesCuentas(datos, tasas);
 
   return (
     <>
-      {activas.length > 1 && (
+      {!compacta && activas.length > 1 && (
         <dl className="cifras mb-6 grid grid-cols-2 gap-4">
           <div>
             <dt className="text-sm text-tinta-suave">Tienes</dt>
@@ -279,6 +288,15 @@ export function FormularioCuenta({ cuenta, onCerrar }: { cuenta?: Cuenta; onCerr
           )}
           {error && <p role="alert" className="text-sm font-medium text-boton-hover dark:text-naranja">{error}</p>}
           <Boton type="submit" className="w-full">{cuenta ? "Guardar cambios" : "Agregar cuenta"}</Boton>
+          {cuenta && (
+            <Link
+              href={`/finanzas/movimientos?cuenta=${cuenta.id}`}
+              onClick={cerrar}
+              className="tactil flex min-h-11 items-center justify-center rounded-xl border border-linea text-sm font-semibold hover:border-tinta-suave"
+            >
+              Ver sus movimientos
+            </Link>
+          )}
           {cuenta && (
             <Boton
               variante="suave"

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Movimientos from "@/components/finanzas/Movimientos";
 
 export const metadata = { title: "Movimientos · Finanzas" };
@@ -6,5 +7,10 @@ export const metadata = { title: "Movimientos · Finanzas" };
 export const instant = false;
 
 export default function Pagina() {
-  return <Movimientos />;
+  // Movimientos lee los filtros de la URL (?cuenta=…), que solo se conocen en el navegador
+  return (
+    <Suspense>
+      <Movimientos />
+    </Suspense>
+  );
 }

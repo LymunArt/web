@@ -5,6 +5,7 @@ import { movimientosACsv } from "@/lib/finanzas/conexiones";
 import { cop, diaLargo, dinero, nombreMes } from "@/lib/finanzas/formato";
 import type { Movimiento, TipoMovimiento } from "@/lib/finanzas/tipos";
 import { useFinanzas } from "./Contexto";
+import Transferir from "./Transferir";
 import { Boton, Campo, Segmentado, Selector, SelectorMes, Titulo, Vacio } from "./Ui";
 
 type FiltroTipo = TipoMovimiento | "todos";
@@ -30,6 +31,7 @@ export default function Movimientos() {
   const [tipo, setTipo] = useState<FiltroTipo>("todos");
   const [categoria, setCategoria] = useState("");
   const [busqueda, setBusqueda] = useState("");
+  const [transferencia, setTransferencia] = useState<Movimiento | null>(null);
 
   const delMes = useMemo(() => datos.movimientos.filter((m) => m.fecha.startsWith(mes)), [datos.movimientos, mes]);
   const categorias = useMemo(() => [...new Set(delMes.map((m) => m.categoria))].sort(), [delMes]);
@@ -71,7 +73,7 @@ export default function Movimientos() {
               <ul className="flex flex-col divide-y divide-linea">
                 {lista.map((m) => (
                   <li key={m.id}>
-                    <button type="button" onClick={() => abrirRegistro({ inicial: m })} className="tactil flex min-h-14 w-full items-center justify-between gap-4 py-2.5 text-left">
+                    <button type="button" onClick={() => (m.tipo === "transferencia" ? setTransferencia(m) : abrirRegistro({ inicial: m }))} className="tactil flex min-h-14 w-full items-center justify-between gap-4 py-2.5 text-left">
                       <span className="min-w-0">
                         <span className="block truncate font-medium">{m.descripcion}</span>
                         <span className="block truncate text-sm text-tinta-suave">
@@ -80,7 +82,7 @@ export default function Movimientos() {
                       </span>
                       <span className="shrink-0 text-right">
                         <span className={`cifras block font-semibold ${m.tipo === "ingreso" ? "text-cielo-tinta dark:text-cielo" : ""}`}>
-                          {m.tipo === "ingreso" ? "+" : "−"}{dinero(m.monto, m.moneda ?? "COP")}
+                          {m.tipo === "ingreso" ? "+" : m.tipo === "transferencia" ? "" : "−"}{dinero(m.monto, m.moneda ?? "COP")}
                         </span>
                         {m.moneda && m.moneda !== "COP" && <span className="cifras block text-sm text-tinta-suave">≈ {cop(m.monto * m.tasa)}</span>}
                       </span>
@@ -95,6 +97,7 @@ export default function Movimientos() {
           </div>
         </div>
       )}
+      {transferencia && <Transferir movimiento={transferencia} onCerrar={() => setTransferencia(null)} />}
     </>
   );
 }

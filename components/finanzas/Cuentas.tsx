@@ -7,6 +7,7 @@ import { obtenerTasas, type Tasas } from "@/lib/finanzas/tasas";
 import { MONEDAS, TIPOS_CUENTA, type Cuenta, type TipoCuenta } from "@/lib/finanzas/tipos";
 import { useFinanzas } from "./Contexto";
 import { Boton, Campo, CampoMonto, Hoja, Icono, Pildoras, Selector, Titulo, Vacio } from "./Ui";
+import Transferir from "./Transferir";
 import Wallet from "./Wallet";
 
 export function useTasas() {
@@ -37,7 +38,7 @@ const ICONOS: Record<TipoCuenta, string> = {
   inversion: "M4 19V5M4 19h16M8 15l3-4 3 2 5-6",
 };
 
-function FilaCuenta({ c, tasas, onEditar }: { c: Cuenta; tasas: Tasas | null; onEditar: () => void }) {
+function FilaCuenta({ c, tasas, onEditar, onPagar }: { c: Cuenta; tasas: Tasas | null; onEditar: () => void; onPagar: () => void }) {
   const { datos } = useFinanzas();
   const saldo = saldoCuenta(datos, c.id);
   const tasa = c.moneda === "COP" ? 1 : tasas?.pesosPor[c.moneda];
@@ -47,8 +48,8 @@ function FilaCuenta({ c, tasas, onEditar }: { c: Cuenta; tasas: Tasas | null; on
   const pago = credito && c.dia_pago ? proximoPago(c.dia_pago) : null;
 
   return (
-    <li>
-      <button type="button" onClick={onEditar} className="tactil flex min-h-16 w-full items-center gap-3 py-3 text-left">
+    <li className="flex items-center gap-3">
+      <button type="button" onClick={onEditar} className="tactil flex min-h-16 min-w-0 flex-1 items-center gap-3 py-3 text-left">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cielo/45 text-tinta dark:bg-cielo/15">
           <Icono d={ICONOS[c.tipo]} />
         </span>
@@ -75,6 +76,11 @@ function FilaCuenta({ c, tasas, onEditar }: { c: Cuenta; tasas: Tasas | null; on
           </span>
         </span>
       </button>
+      {credito && saldo > 0 && (
+        <button type="button" onClick={onPagar} className="tactil min-h-11 shrink-0 rounded-xl bg-lila px-3 text-sm font-semibold text-tinta-fija hover:bg-[#A98BE4]">
+          Pagar
+        </button>
+      )}
     </li>
   );
 }
@@ -84,6 +90,8 @@ export function ListaCuentas({ compacta = false }: { compacta?: boolean }) {
   const { datos } = useFinanzas();
   const tasas = useTasas();
   const [editar, setEditar] = useState<Cuenta | null>(null);
+  const [pagar, setPagar] = useState<Cuenta | null>(null);
+  const [mover, setMover] = useState(false);
   const activas = datos.cuentas.filter((c) => !c.archivada);
   const enPesos = (c: Cuenta) => {
     const tasa = c.moneda === "COP" ? 1 : tasas?.pesosPor[c.moneda];
@@ -116,7 +124,7 @@ export function ListaCuentas({ compacta = false }: { compacta?: boolean }) {
             <section key={g.nombre} aria-label={g.nombre}>
               {!compacta && <h2 className="mb-1 text-sm font-semibold text-tinta-suave">{g.nombre}</h2>}
               <ul className="flex flex-col divide-y divide-linea">
-                {deGrupo.map((c) => <FilaCuenta key={c.id} c={c} tasas={tasas} onEditar={() => setEditar(c)} />)}
+                {deGrupo.map((c) => <FilaCuenta key={c.id} c={c} tasas={tasas} onEditar={() => setEditar(c)} onPagar={() => setPagar(c)} />)}
               </ul>
             </section>
           );
@@ -128,7 +136,14 @@ export function ListaCuentas({ compacta = false }: { compacta?: boolean }) {
           <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer" className="underline decoration-cielo decoration-2">ExchangeRate-API</a>.
         </p>
       )}
+      {!compacta && activas.length > 1 && (
+        <button type="button" onClick={() => setMover(true)} className="mt-4 min-h-11 text-sm font-semibold underline decoration-cielo decoration-2 underline-offset-4 hover:decoration-naranja">
+          Mover plata entre mis cuentas
+        </button>
+      )}
       {editar && <FormularioCuenta cuenta={editar} onCerrar={() => setEditar(null)} />}
+      {pagar && <Transferir destino={pagar} onCerrar={() => setPagar(null)} />}
+      {mover && <Transferir onCerrar={() => setMover(false)} />}
     </>
   );
 }

@@ -227,9 +227,13 @@ export function saldoCuenta(datos: Datos, cuentaId: string) {
   const cuenta = datos.cuentas.find((c) => c.id === cuentaId);
   if (!cuenta) return 0;
   const signo = cuenta.tipo === "credito" ? -1 : 1;
-  return datos.movimientos
-    .filter((m) => m.cuenta_id === cuentaId)
-    .reduce((s, m) => s + signo * (m.tipo === "ingreso" ? m.monto : -m.monto), cuenta.saldo_inicial);
+  // Lo que entra a la cuenta suma y lo que sale resta; una transferencia sale de una y entra a la otra
+  const efecto = (m: Movimiento) => {
+    if (m.tipo === "transferencia") return m.cuenta_destino_id === cuentaId ? m.monto : m.cuenta_id === cuentaId ? -m.monto : 0;
+    if (m.cuenta_id !== cuentaId) return 0;
+    return m.tipo === "ingreso" ? m.monto : -m.monto;
+  };
+  return datos.movimientos.reduce((s, m) => s + signo * efecto(m), Number(cuenta.saldo_inicial));
 }
 
 // Si el movimiento sale de una cuenta, el medio de pago se deduce de ella: no hay que preguntarlo
